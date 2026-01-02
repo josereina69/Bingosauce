@@ -3,169 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingo Pro Automático</title>
+    <title>BINGO SAUCE - Oficial</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --primary: #e67e22; --dark: #1a1a1a; --light: #f1f1f1; --accent: #27ae60; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--light); text-align: center; margin: 0; padding: 20px; }
+        :root { --sauce-red: #d32f2f; --sauce-orange: #ff6f00; --dark: #0e0e0e; --paper: #fff9c4; }
+        body { font-family: 'Arial Black', sans-serif; background: var(--dark); color: #fff; margin: 0; padding: 10px; }
         
-        /* Panel del Cantante */
-        .container { max-width: 900px; margin: auto; }
-        .controls { background: #333; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #444; }
-        .grid-bingo { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin: 20px auto; }
-        .num { background: #222; padding: 10px; border-radius: 5px; border: 1px solid #444; color: #666; transition: 0.3s; }
-        .num.active { background: var(--primary); color: white; font-weight: bold; box-shadow: 0 0 15px var(--primary); border-color: white; }
-        
-        /* Cartón del Jugador */
-        #pantalla-jugador { display: none; }
-        .carton { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 350px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; }
-        .celda { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-radius: 50%; color: #333; }
-        .celda.marcado { background: var(--accent); color: white; }
+        /* --- PANEL PRINCIPAL BINGO SAUCE --- */
+        .header-sauce { color: var(--sauce-orange); text-shadow: 3px 3px 0px var(--sauce-red); font-size: 3.5rem; margin: 10px 0; letter-spacing: -2px; }
+        .big-ball { 
+            width: 160px; height: 160px; background: radial-gradient(circle at 30% 30%, #fff, var(--sauce-orange)); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-size: 6rem; color: #333; margin: 20px auto; border: 6px solid white; box-shadow: 0 0 40px var(--sauce-red);
+        }
+        .grid-master { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; max-width: 850px; margin: auto; background: #1a1a1a; padding: 15px; border-radius: 10px; }
+        .n-off { background: #333; color: #555; padding: 8px; border-radius: 5px; font-size: 0.9rem; transition: 0.3s; }
+        .n-on { background: var(--sauce-red); color: white; font-weight: bold; box-shadow: 0 0 15px var(--sauce-red); border: 1px solid white; }
 
-        /* Estética de botones */
-        button { background: var(--primary); border: none; padding: 12px 20px; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; margin: 5px; min-width: 100px; }
-        button:disabled { background: #555; cursor: not-allowed; }
-        .btn-reset { background: #c0392b; }
-        .btn-pause { background: #f39c12; }
+        /* --- VISTA JUGADOR --- */
+        #pantalla-jugador { display: none; text-align: center; }
+        .carton-real { 
+            background: var(--paper); padding: 10px; border-radius: 4px; margin-bottom: 25px;
+            border: 3px solid #444; box-shadow: 8px 8px 0px #000; max-width: 480px; margin-left: auto; margin-right: auto;
+        }
+        .c-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #444; }
+        .c-celda { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #1a237e; font-weight: bold; position: relative; cursor: pointer; }
+        .c-celda.vacia { background: #e0e0e0; }
+        .marcado::after { content: '✖'; position: absolute; color: var(--sauce-red); font-size: 2.2rem; opacity: 0.8; }
+
+        /* BOTONES */
+        .btn-sauce { background: var(--sauce-red); border: none; padding: 15px 30px; color: white; font-weight: bold; border-radius: 50px; cursor: pointer; border-bottom: 5px solid #8b0000; font-size: 1.1rem; text-transform: uppercase; }
+        .btn-sauce:active { border-bottom-width: 2px; transform: translateY(3px); }
+        .btn-bingo { background: var(--sauce-orange); width: 100%; font-size: 2.5rem; padding: 25px; margin-top: 15px; border-bottom-color: #b34e00; }
         
-        #qrcode { background: white; padding: 10px; display: inline-block; border-radius: 5px; margin-top: 15px; }
-        .big-number { font-size: 6rem; color: var(--primary); margin: 10px 0; font-weight: bold; text-shadow: 0 0 20px rgba(230, 126, 34, 0.4); }
+        #qrcode { background: white; padding: 15px; display: inline-block; margin: 25px; border-radius: 15px; border: 5px solid var(--sauce-orange); }
+        
+        #alerta-bingo { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(211, 47, 47, 0.95); z-index: 1000; align-items: center; justify-content: center; font-size: 6rem; animation: blink 0.4s infinite; text-shadow: 5px 5px 0px #000; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } }
     </style>
 </head>
-<body>
+<body onclick="activarAudio()"> <div id="alerta-bingo">¡¡BINGO!!</div>
 
-    <div class="container" id="panel-cantante">
-        <h1>BINGO AUTOMÁTICO</h1>
-        
-        <div class="controls">
-            <div class="big-number" id="numero-actual">--</div>
-            <div id="status">Listo para empezar</div>
-            <br>
-            <button id="btn-start" onclick="iniciarBingo()">INICIAR</button>
-            <button id="btn-pause" class="btn-pause" onclick="pausarBingo()" disabled>PAUSA</button>
-            <button class="btn-reset" onclick="reiniciarJuego()">REINICIAR</button>
-            <br><br>
-            <label>Velocidad: 
-                <select id="velocidad" onchange="cambiarVelocidad()">
-                    <option value="5000">Lento (5s)</option>
-                    <option value="3000" selected>Normal (3s)</option>
-                    <option value="1500">Rápido (1.5s)</option>
-                </select>
-            </label>
+    <div id="panel-cantante" style="text-align: center;">
+        <h1 class="header-sauce">BINGO SAUCE</h1>
+        <p id="msg-inicio" style="color: var(--sauce-orange); font-size: 0.9rem;">Haz clic en cualquier lugar para activar el sonido</p>
+        <div class="big-ball" id="bola">--</div>
+        <div style="margin-bottom: 30px;">
+            <button class="btn-sauce" onclick="autoPlay()">INICIAR SORTEO</button>
+            <button class="btn-sauce" onclick="pausar()" style="background:#444; border-bottom-color:#000;">PAUSAR</button>
+            <button class="btn-sauce" onclick="location.reload()" style="background:#222; border-bottom-color:#000;">REINICIAR</button>
         </div>
-        
-        <div class="grid-bingo" id="tablero-principal"></div>
-
-        <div id="seccion-qr">
-            <p>Escanea para tu cartón:</p>
-            <div id="qrcode"></div>
-        </div>
+        <div class="grid-master" id="tablero"></div>
+        <div id="qrcode"></div>
+        <p style="letter-spacing: 2px;">ESCANEEN PARA CARTONES PREMIUM</p>
     </div>
 
-    <div class="container" id="pantalla-jugador">
-        <h1>TU CARTÓN</h1>
-        <div class="carton" id="mi-carton"></div>
-        <button onclick="location.reload()">NUEVO CARTÓN</button>
+    <div id="pantalla-jugador">
+        <h1 class="header-sauce" style="font-size: 2rem;">BINGO SAUCE</h1>
+        <div id="selector">
+            <h2 style="color: white;">¿CON CUÁNTAS SALSAS JUEGAS HOY?</h2>
+            <button class="btn-sauce" onclick="jugar(1)">1 CARTÓN</button><br><br>
+            <button class="btn-sauce" onclick="jugar(2)">2 CARTONES</button><br><br>
+            <button class="btn-sauce" onclick="jugar(3)">3 CARTONES</button>
+        </div>
+        <div id="zona-cartones" style="display:none;">
+            <div id="mis-cartones"></div>
+            <button class="btn-sauce btn-bingo" onclick="gritarBingo()">¡BINGO!</button>
+        </div>
     </div>
 
     <script>
-        let numerosSacados = [];
-        let intervalo = null;
-        let pausado = false;
-        let tiempo = 3000;
+        const url = new URLSearchParams(window.location.search);
+        let sacados = [];
+        let timer = null;
+        let audioIniciado = false;
 
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('play')) {
+        // --- FUNCIÓN DE VOZ ---
+        function hablar(texto, pitch = 1) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(texto);
+            msg.lang = 'es-ES';
+            msg.pitch = pitch; // Un poco más grave o agudo
+            msg.rate = 0.9;   // Un poco más lento para dar emoción
+            window.speechSynthesis.speak(msg);
+        }
+
+        // Activación de audio por interacción del usuario
+        function activarAudio() {
+            if (!audioIniciado) {
+                hablar("Bienvenidos al Bingo Sauce. Mucha suerte a todos los participantes.");
+                document.getElementById('msg-inicio').style.display = 'none';
+                audioIniciado = true;
+            }
+        }
+
+        // Configuración inicial
+        if (url.has('play')) {
             document.getElementById('panel-cantante').style.display = 'none';
             document.getElementById('pantalla-jugador').style.display = 'block';
-            generarCarton();
         } else {
-            generarTablero();
-            new QRCode(document.getElementById("qrcode"), {
-                text: window.location.href + "?play=true",
-                width: 120, height: 120
-            });
-        }
-
-        function generarTablero() {
-            const tablero = document.getElementById('tablero-principal');
+            const t = document.getElementById('tablero');
             for(let i=1; i<=90; i++) {
-                let div = document.createElement('div');
-                div.className = 'num'; div.id = 'n-' + i; div.innerText = i;
-                tablero.appendChild(div);
+                let d = document.createElement('div');
+                d.className = 'n-off'; d.id = 'n-'+i; d.innerText = i;
+                t.appendChild(d);
             }
+            new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?play=true", width: 160, height: 160 });
         }
 
-        function hablar(texto) {
-            const mensaje = new SpeechSynthesisUtterance(texto);
-            mensaje.lang = 'es-ES';
-            mensaje.rate = 1;
-            window.speechSynthesis.speak(mensaje);
-        }
-
-        function sacarNumero() {
-            if (numerosSacados.length >= 90) {
-                clearInterval(intervalo);
-                hablar("Juego terminado");
+        // --- LÓGICA DEL SORTEO ---
+        function sortear() {
+            if (sacados.length >= 90) {
+                clearInterval(timer);
+                hablar("Fin del juego");
                 return;
             }
-            
             let n;
-            do { n = Math.floor(Math.random() * 90) + 1; } while (numerosSacados.includes(n));
-            
-            numerosSacados.push(n);
-            document.getElementById('numero-actual').innerText = n;
-            document.getElementById('n-' + n).classList.add('active');
+            do { n = Math.floor(Math.random() * 90) + 1; } while (sacados.includes(n));
+            sacados.push(n);
+            document.getElementById('bola').innerText = n;
+            document.getElementById('n-'+n).className = 'n-off n-on';
             hablar(n);
         }
 
-        function iniciarBingo() {
-            if (pausado) {
-                pausado = false;
-            }
-            document.getElementById('btn-start').disabled = true;
-            document.getElementById('btn-pause').disabled = false;
-            document.getElementById('status').innerText = "Sorteando...";
-            sacarNumero();
-            intervalo = setInterval(sacarNumero, tiempo);
+        function autoPlay() {
+            if(!audioIniciado) activarAudio();
+            if(timer) clearInterval(timer);
+            timer = setInterval(sortear, 4500); 
+            sortear();
         }
 
-        function pausarBingo() {
-            clearInterval(intervalo);
-            pausado = true;
-            document.getElementById('btn-start').disabled = false;
-            document.getElementById('btn-pause').disabled = true;
-            document.getElementById('status').innerText = "Juego en pausa";
-            window.speechSynthesis.cancel();
-        }
+        function pausar() { clearInterval(timer); window.speechSynthesis.cancel(); }
 
-        function reiniciarJuego() {
-            if(confirm("¿Seguro que quieres reiniciar todo el tablero?")) {
-                location.reload();
+        function gritarBingo() {
+            alert("¡HAS PULSADO BINGO! ¡ENSÉÑALO A LA MESA!");
+            const alerta = document.getElementById('alerta-bingo');
+            if(alerta) {
+                alerta.style.display = 'flex';
+                pausar();
+                hablar("¡Atención! Alguien ha cantado bingo");
+                setTimeout(() => alerta.style.display = 'none', 6000);
             }
         }
 
-        function cambiarVelocidad() {
-            tiempo = document.getElementById('velocidad').value;
-            if (intervalo && !pausado) {
-                clearInterval(intervalo);
-                intervalo = setInterval(sacarNumero, tiempo);
+        // --- LÓGICA GENERACIÓN DE CARTONES ---
+        function jugar(cant) {
+            document.getElementById('selector').style.display = 'none';
+            document.getElementById('zona-cartones').style.display = 'block';
+            for(let i=0; i<cant; i++) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'carton-real';
+                const id = Math.floor(Math.random()*9000) + 1000;
+                wrapper.innerHTML = `<div style="color:#333; font-size:0.7rem; display:flex; justify-content:space-between; margin-bottom:5px;"><span>SAUCE PREMIUM</span><span>REF: ${id}</span></div>`;
+                const grid = document.createElement('div');
+                grid.className = 'c-grid';
+                
+                let matriz = Array(3).fill().map(() => Array(9).fill(0));
+                for(let f=0; f<3; f++) {
+                    let cs = []; while(cs.length < 5) { let r = Math.floor(Math.random()*9); if(!cs.includes(r)) cs.push(r); }
+                    cs.forEach(c => {
+                        let num; do { num = Math.floor(Math.random()*10) + (c*10); if(num===0) num=1; if(num>90) num=90; } while(matriz.flat().includes(num));
+                        matriz[f][c] = num;
+                    });
+                }
+                for(let f=0; f<3; f++) {
+                    for(let c=0; c<9; c++) {
+                        let celda = document.createElement('div');
+                        celda.className = 'c-celda' + (matriz[f][c] === 0 ? ' vacia' : '');
+                        celda.innerText = matriz[f][c] || '';
+                        if(matriz[f][c] !== 0) celda.onclick = function() { this.classList.toggle('marcado'); };
+                        grid.appendChild(celda);
+                    }
+                }
+                wrapper.appendChild(grid);
+                document.getElementById('mis-cartones').appendChild(wrapper);
             }
-        }
-
-        function generarCarton() {
-            const cartonDiv = document.getElementById('mi-carton');
-            let numeros = [];
-            while(numeros.length < 15) {
-                let r = Math.floor(Math.random() * 90) + 1;
-                if(!numeros.includes(r)) numeros.push(r);
-            }
-            numeros.sort((a, b) => a - b).forEach(num => {
-                let div = document.createElement('div');
-                div.className = 'celda'; div.innerText = num;
-                div.onclick = function() { this.classList.toggle('marcado'); };
-                cartonDiv.appendChild(div);
-            });
         }
     </script>
 </body>
