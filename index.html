@@ -193,19 +193,30 @@
 
         function sincronizarJugador() {
             const estado = cargarEstado();
-            if (estado) {
+            if (estado && estado.sacados) {
                 const ultimoSacado = sacados.length > 0 ? sacados[sacados.length - 1] : null;
                 const nuevoUltimo = estado.ultimoNumero;
                 
+                // Actualizar array de sacados
+                sacados = estado.sacados;
+                
+                // Siempre actualizar el historial
+                actualizarHistorialJugador();
+                
+                // Solo animar si hay un número nuevo
                 if (nuevoUltimo && nuevoUltimo !== ultimoSacado) {
-                    sacados = estado.sacados;
-                    actualizarHistorialJugador();
                     const bolaJugador = document.getElementById('bola-jugador');
                     if (bolaJugador) {
                         bolaJugador.innerText = nuevoUltimo;
                         bolaJugador.classList.add('pop');
                         setTimeout(() => bolaJugador.classList.remove('pop'), 500);
                         resaltarNumeroEnCartones(nuevoUltimo);
+                    }
+                } else if (nuevoUltimo) {
+                    // Actualizar bola sin animación si ya está el mismo número
+                    const bolaJugador = document.getElementById('bola-jugador');
+                    if (bolaJugador && bolaJugador.innerText === '--') {
+                        bolaJugador.innerText = nuevoUltimo;
                     }
                 }
             }
@@ -494,7 +505,10 @@
             document.getElementById('zona-cartones').style.display = 'block';
             cartones = []; // Reset cartones array
             
-            // Iniciar sincronización
+            // Cargar estado inicial inmediatamente
+            sincronizarJugador();
+            
+            // Iniciar sincronización periódica
             iniciarSincronizacion();
             
             for(let i=0; i<cant; i++) {
