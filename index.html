@@ -3,555 +3,837 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BINGO SAUCE</title>
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌶️</text></svg>">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Bingo Sauce - La Experiencia Definitiva</title>
     <style>
-        :root { --sauce-red: #d32f2f; --sauce-orange: #ff6f00; --dark: #0e0e0e; --paper: #fff9c4; }
-        body { font-family: 'Arial Black', sans-serif; background: var(--dark); color: #fff; margin: 0; padding: 10px; }
-        
-        .header-sauce { color: var(--sauce-orange); text-shadow: 3px 3px 0px var(--sauce-red); font-size: 3.5rem; margin: 10px 0; letter-spacing: -2px; text-align: center; }
-        .big-ball { 
-            width: 150px; height: 150px; background: radial-gradient(circle at 30% 30%, #fff, var(--sauce-orange)); 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-size: 5.5rem; color: #333; margin: 15px auto; border: 6px solid white; box-shadow: 0 0 40px var(--sauce-red);
-            transition: transform 0.3s ease;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .big-ball.pop { animation: popBounce 0.5s ease; }
-        @keyframes popBounce { 0% { transform: scale(1); } 30% { transform: scale(1.2); } 50% { transform: scale(0.95); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .stats { color: var(--sauce-orange); font-size: 1.1rem; margin-bottom: 10px; text-align: center; }
-        .grid-master { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; max-width: 850px; margin: auto; background: #1a1a1a; padding: 15px; border-radius: 10px; }
-        .n-off { background: #333; color: #555; padding: 8px; border-radius: 5px; font-size: 0.9rem; text-align: center; }
-        .n-on { background: var(--sauce-red); color: white; font-weight: bold; box-shadow: 0 0 15px var(--sauce-red); border: 1px solid white; }
 
-        .controls-panel { background: #222; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; text-align: center; position: relative; }
-        .top-tools { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; align-items: center; }
-        
-        .btn-mute { background: #444; border: 2px solid var(--sauce-orange); color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; }
-        .btn-mute.muted { background: var(--sauce-red); border-color: white; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-        select { background: #333; color: white; border: 1px solid var(--sauce-orange); padding: 8px; border-radius: 5px; cursor: pointer; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
 
-        #pantalla-jugador { display: none; text-align: center; }
-        .carton-real { background: var(--paper); padding: 10px; border-radius: 4px; margin: 0 auto 25px auto; border: 3px solid #444; box-shadow: 8px 8px 0px #000; max-width: 480px; }
-        .c-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #444; }
-        .c-celda { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #1a237e; font-weight: bold; position: relative; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .c-celda.vacia { background: #e0e0e0; }
-        .marcado::after { content: '✖'; position: absolute; color: var(--sauce-red); font-size: 2.2rem; opacity: 0.8; animation: markPop 0.3s ease; }
-        @keyframes markPop { 0% { transform: scale(0) rotate(0deg); } 50% { transform: scale(1.3) rotate(180deg); } 100% { transform: scale(1) rotate(180deg); } }
-        .c-celda:hover:not(.vacia) { transform: scale(1.05); box-shadow: 0 0 10px rgba(211, 47, 47, 0.5); }
-        .c-celda.ultimo-numero { animation: highlightNumber 2s ease-in-out; box-shadow: 0 0 20px var(--sauce-orange); border: 2px solid var(--sauce-orange); }
-        @keyframes highlightNumber { 0%, 100% { box-shadow: 0 0 20px var(--sauce-orange); } 50% { box-shadow: 0 0 30px var(--sauce-orange), 0 0 40px var(--sauce-red); } }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: titlePulse 2s ease-in-out infinite;
+        }
 
-        .btn-sauce { background: var(--sauce-red); border: none; padding: 12px 25px; color: white; font-weight: bold; border-radius: 50px; cursor: pointer; border-bottom: 5px solid #8b0000; margin: 5px; transition: transform 0.1s ease, box-shadow 0.1s ease; }
-        .btn-sauce:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(211, 47, 47, 0.4); }
-        .btn-sauce:active:not(:disabled) { transform: translateY(1px); }
-        .btn-sauce:disabled { background: #444; border-bottom-color: #222; opacity: 0.6; }
-        
-        .btn-linea { background: #2980b9; font-size: 1.8rem; padding: 15px; border-bottom-color: #1a5276; width: 100%; max-width: 480px; }
-        .btn-bingo { background: var(--sauce-orange); font-size: 2.5rem; padding: 20px; border-bottom-color: #b34e00; width: 100%; max-width: 480px; }
-        
-        #qrcode { background: white; padding: 15px; display: inline-block; margin: 25px; border-radius: 15px; }
-        .overlay-alerta { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; font-size: 4rem; text-align: center; }
-        .blink { animation: blink 0.4s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } }
-        #countdown-display { font-size: 12rem; color: var(--sauce-orange); text-shadow: 0 0 30px var(--sauce-red); }
-        
-        .historial-bolas { background: #1a1a1a; padding: 10px; border-radius: 10px; margin: 10px auto; max-width: 850px; text-align: center; }
-        .historial-bolas .titulo { color: var(--sauce-orange); font-size: 0.9rem; margin-bottom: 8px; }
-        .historial-lista { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-        .historial-num { background: var(--sauce-red); color: white; padding: 8px 12px; border-radius: 50%; font-size: 1.1rem; font-weight: bold; min-width: 40px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        
-        .btn-limpiar { background: #e67e22; border-bottom-color: #b34e00; font-size: 1.3rem; padding: 12px; width: 100%; max-width: 480px; margin-top: 10px; }
-        
-        .mensaje-validacion { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 30px 50px; border-radius: 15px; font-size: 2rem; z-index: 999; border: 3px solid var(--sauce-orange); animation: fadeInOut 3s ease; }
-        .mensaje-validacion.exito { border-color: #27ae60; color: #27ae60; }
-        .mensaje-validacion.error { border-color: var(--sauce-red); color: var(--sauce-red); }
-        @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 10% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 90% { opacity: 1; } 100% { opacity: 0; } }
-        
-        @media (max-width: 400px) {
-            .header-sauce { font-size: 2rem; }
-            .big-ball { width: 100px; height: 100px; font-size: 3.5rem; }
-            .stats { font-size: 0.9rem; }
-            .c-celda { font-size: 1rem; }
-            .btn-sauce { padding: 10px 20px; font-size: 0.9rem; }
-            .btn-linea { font-size: 1.3rem; padding: 12px; }
-            .btn-bingo { font-size: 1.8rem; padding: 15px; }
-            .carton-real { padding: 5px; }
-            .historial-num { padding: 6px 10px; font-size: 0.9rem; min-width: 35px; }
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+            transform: translateY(-3px);
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sección Cantante */
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .bola-display {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .bola-numero {
+            font-size: 6em;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            animation: bolaAppear 0.5s ease-out;
+        }
+
+        @keyframes bolaAppear {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+
+        .bola-letra {
+            font-size: 2em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .historial {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .historial h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .numeros-cantados {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
+        }
+
+        .numero-cantado {
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            animation: numeroAppear 0.3s ease-out;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes numeroAppear {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+        }
+
+        /* Sección Jugador */
+        .carton-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .carton {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .carton.ganador {
+            animation: ganadorPulse 1s ease-in-out infinite;
+            border: 5px solid gold;
+        }
+
+        @keyframes ganadorPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255, 215, 0, 0.8); }
+        }
+
+        .carton h3 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .carton-header {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .carton-header div {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            border-radius: 5px;
+        }
+
+        .carton-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+
+        .celda {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .celda:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .celda.marcada {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            animation: marcadaAnimation 0.5s ease-out;
+        }
+
+        @keyframes marcadaAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .celda.libre {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            font-size: 1em;
+        }
+
+        /* Mensajes */
+        .mensaje {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            text-align: center;
+            animation: mensajeAppear 0.5s ease-out;
+        }
+
+        @keyframes mensajeAppear {
+            from { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .mensaje h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            animation: fadeIn 0.3s;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            position: absolute;
+            animation: confettiFall 3s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Controles del jugador */
+        .jugador-controles {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .jugador-controles input {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        .jugador-controles input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                width: 100%;
+            }
+
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .bola-numero {
+                font-size: 4em;
+            }
+
+            .jugador-controles {
+                flex-direction: column;
+            }
+        }
+
+        /* Animación de fondo */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
         }
     </style>
 </head>
-<body onclick="activarAudio()">
+<body>
+    <div class="container">
+        <h1>🎉 Bingo Sauce 🎉</h1>
 
-    <div id="alerta-bingo" class="overlay-alerta">
-        <div id="countdown-display" style="display:none;">5</div>
-        <div class="blink" id="alerta-texto" style="display:none;">¡¡BINGO SAUCE!!</div>
-        <button id="btn-cerrar-alerta" class="btn-sauce" onclick="cerrarAlerta()" style="display:none; font-size: 1.5rem; margin-top: 20px;">OK</button>
+        <div class="tabs">
+            <button class="tab active" onclick="cambiarTab('cantante')">🎤 Cantante</button>
+            <button class="tab" onclick="cambiarTab('jugador')">🎮 Jugador</button>
+        </div>
+
+        <!-- Sección Cantante -->
+        <div id="cantante" class="tab-content active">
+            <div class="control-panel">
+                <div class="bola-display">
+                    <div class="bola-letra" id="bola-letra">-</div>
+                    <div class="bola-numero" id="bola-numero">00</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <button class="btn-primary" onclick="sacarBola()">🎲 Sacar Bola</button>
+                    <button class="btn-secondary" onclick="reiniciarJuego()">🔄 Reiniciar Juego</button>
+                    <button class="btn-success" onclick="toggleAutoSacar()">⏱️ Auto Sacar (<span id="auto-timer">5</span>s)</button>
+                </div>
+            </div>
+
+            <div class="historial">
+                <h3>📋 Historial de Números Cantados</h3>
+                <div class="numeros-cantados" id="historial-cantante"></div>
+            </div>
+        </div>
+
+        <!-- Sección Jugador -->
+        <div id="jugador" class="tab-content">
+            <div class="jugador-controles">
+                <input type="text" id="nombre-jugador" placeholder="Ingresa tu nombre">
+                <input type="number" id="cantidad-cartones" placeholder="Cantidad de cartones (1-6)" min="1" max="6">
+                <button class="btn-primary" onclick="generarCartones()">🎴 Generar Cartones</button>
+                <button class="btn-warning" onclick="limpiarCartones()">🧹 Limpiar Cartones</button>
+            </div>
+
+            <div class="carton-container" id="carton-container"></div>
+        </div>
     </div>
 
-    <div id="panel-cantante">
-        <h1 class="header-sauce">BINGO SAUCE</h1>
-        <div class="controls-panel">
-            <div class="top-tools">
-                <button id="mute-cantante" class="btn-mute" onclick="toggleMute()">🔊 VOZ: ON</button>
-                <select id="select-idioma" onchange="cambiarIdioma()">
-                    <option value="es-ES">🇪🇸 ES</option>
-                    <option value="en-US">🇺🇸 EN</option>
-                </select>
-            </div>
-            <div class="stats"><span id="txt-restantes">BOLAS RESTANTES</span>: <span id="restantes">90</span></div>
-            <div class="big-ball" id="bola">--</div>
-            <button class="btn-sauce" id="btn-play" onclick="prepararSorteo()">INICIAR</button>
-            <button class="btn-sauce" id="btn-pause" onclick="pausar()" style="background:#f39c12; border-bottom-color:#b34e00;">PAUSA</button>
-            <button class="btn-sauce" onclick="reiniciarTodo()" style="background:#444; border-bottom-color:#222;">REINICIAR</button>
-            <div class="speed-control" style="margin-top:10px;">
-                <select id="select-velocidad" onchange="cambiarVelocidad()">
-                    <option value="8000">TORTUGA</option>
-                    <option value="4000" selected>NORMAL</option>
-                    <option value="2500">RÁPIDO</option>
-                    <option value="1500">FLASH</option>
-                </select>
-            </div>
-        </div>
-        <div class="historial-bolas" id="historial-cantante">
-            <div class="titulo">ÚLTIMAS BOLAS CANTADAS</div>
-            <div class="historial-lista" id="lista-historial-cantante"></div>
-        </div>
-        <div class="grid-master" id="tablero"></div>
-        <div style="text-align: center;"><div id="qrcode"></div></div>
-    </div>
-
-    <div id="pantalla-jugador">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-            <h1 class="header-sauce" style="font-size: 1.5rem; margin: 0;">BINGO SAUCE</h1>
-            <button id="mute-jugador" class="btn-mute" onclick="toggleMute()">🔊</button>
-        </div>
-        <div id="selector">
-            <button class="btn-sauce" onclick="jugar(1)">1 CARTÓN</button>
-            <button class="btn-sauce" onclick="jugar(2)">2 CARTONES</button>
-            <button class="btn-sauce" onclick="jugar(3)">3 CARTONES</button>
-        </div>
-        <div id="zona-cartones" style="display:none; padding: 10px;">
-            <div class="historial-bolas" id="historial-jugador">
-                <div class="titulo">ÚLTIMAS BOLAS CANTADAS</div>
-                <div class="historial-lista" id="lista-historial-jugador"></div>
-            </div>
-            <div id="numero-actual-grande" style="text-align: center; margin: 10px 0;">
-                <div style="color: var(--sauce-orange); font-size: 0.9rem;">ÚLTIMO NÚMERO</div>
-                <div class="big-ball" id="bola-jugador" style="width: 100px; height: 100px; font-size: 3.5rem; margin: 10px auto;">--</div>
-            </div>
-            <div id="mis-cartones"></div>
-            <button class="btn-sauce btn-linea" onclick="gritarPremio('LÍNEA')">¡LÍNEA!</button>
-            <button class="btn-sauce btn-bingo" onclick="gritarPremio('BINGO')">¡BINGO!</button>
-            <button class="btn-sauce btn-limpiar" onclick="limpiarCartones()">🧹 LIMPIAR CARTÓN</button>
-        </div>
-    </div>
+    <audio id="audio-bola" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="audio-ganador" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
 
     <script>
-        const url = new URLSearchParams(window.location.search);
-        let sacados = []; let timer = null; let audioIniciado = false; let msVelocidad = 4000; let juegoEnMarcha = false; let idioma = "es-ES"; let isMuted = false;
-        let syncTimer = null; let cartones = []; // Array para almacenar los cartones generados
-        const STORAGE_KEY = 'bingo_sauce_state';
-        const MAX_HISTORIAL = 10;
-        const SYNC_TIMEOUT_MS = 1800000; // 30 minutos (para que el historial persista)
-        const SYNC_INTERVAL_MS = 2000; // 2 segundos
-        const MAX_CARD_NUMBER = 9999;
-        const textos = {
-            "es-ES": { bienv: "Bienvenidos al Bingo Sauce.", inicio: "INICIAR", pausa: "PAUSA", restantes: "BOLAS RESTANTES", premio: "Alguien ha cantado ", ya: "¡YA!", lineaValida: "¡LÍNEA VÁLIDA! ¡Felicidades!", bingoValido: "¡BINGO VÁLIDO! ¡¡GANADOR!!", lineaInvalida: "Línea incorrecta. Revisa tu cartón.", bingoInvalido: "Bingo incorrecto. Revisa tu cartón.", notificacionLinea: "Un jugador ha cantado LÍNEA válida", notificacionBingo: "Un jugador ha cantado BINGO válido" },
-            "en-US": { bienv: "Welcome to Bingo Sauce.", inicio: "START", pausa: "PAUSE", restantes: "BALLS LEFT", premio: "Someone called ", ya: "GO!", lineaValida: "VALID LINE! Congratulations!", bingoValido: "VALID BINGO! WINNER!!", lineaInvalida: "Incorrect line. Check your card.", bingoInvalido: "Incorrect bingo. Check your card.", notificacionLinea: "A player has called a valid LINE", notificacionBingo: "A player has called a valid BINGO" }
+        // Variables globales
+        let numerosCantados = [];
+        let autoSacarInterval = null;
+        let autoSacarTiempo = 5;
+        let cartones = [];
+        let nombreJugador = '';
+
+        // Mapeo de letras BINGO
+        const letrasBingo = ['B', 'I', 'N', 'G', 'O'];
+        const rangosPorLetra = {
+            'B': [1, 15],
+            'I': [16, 30],
+            'N': [31, 45],
+            'G': [46, 60],
+            'O': [61, 75]
         };
 
-        // LocalStorage sync functions
-        function guardarEstado() {
-            const estado = {
-                sacados: sacados,
-                juegoEnMarcha: juegoEnMarcha,
-                ultimoNumero: sacados.length > 0 ? sacados[sacados.length - 1] : null,
-                timestamp: Date.now()
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
-        }
-
-        function cargarEstado() {
-            try {
-                const data = localStorage.getItem(STORAGE_KEY);
-                if (data) {
-                    const estado = JSON.parse(data);
-                    // Solo sincronizar si el estado es reciente (menos de 30 minutos)
-                    if (Date.now() - estado.timestamp < SYNC_TIMEOUT_MS) {
-                        return estado;
-                    } else {
-                        console.log('Estado demasiado antiguo, ignorando');
-                    }
-                } else {
-                    console.log('No hay estado guardado en localStorage');
-                }
-            } catch (e) {
-                console.error('Error cargando estado:', e);
-            }
-            return null;
-        }
-
-        function sincronizarJugador() {
-            const estado = cargarEstado();
-            if (estado && estado.sacados) {
-                const ultimoSacado = sacados.length > 0 ? sacados[sacados.length - 1] : null;
-                const nuevoUltimo = estado.ultimoNumero;
-                
-                console.log('Sincronizando - Sacados:', estado.sacados.length, 'Último:', nuevoUltimo);
-                
-                // Actualizar array de sacados
-                sacados = estado.sacados;
-                
-                // Siempre actualizar el historial
-                actualizarHistorialJugador();
-                
-                // Solo animar si hay un número nuevo
-                if (nuevoUltimo && nuevoUltimo !== ultimoSacado) {
-                    const bolaJugador = document.getElementById('bola-jugador');
-                    if (bolaJugador) {
-                        bolaJugador.innerText = nuevoUltimo;
-                        bolaJugador.classList.add('pop');
-                        setTimeout(() => bolaJugador.classList.remove('pop'), 500);
-                        resaltarNumeroEnCartones(nuevoUltimo);
-                    }
-                } else if (nuevoUltimo) {
-                    // Actualizar bola sin animación si ya está el mismo número
-                    const bolaJugador = document.getElementById('bola-jugador');
-                    if (bolaJugador && bolaJugador.innerText === '--') {
-                        bolaJugador.innerText = nuevoUltimo;
-                    }
-                }
-            } else {
-                console.log('No hay estado válido para sincronizar');
-            }
-        }
-
-        function iniciarSincronizacion() {
-            if (!syncTimer) {
-                syncTimer = setInterval(sincronizarJugador, SYNC_INTERVAL_MS); // Polling cada 2 segundos
-            }
-        }
-
-        function detenerSincronizacion() {
-            if (syncTimer) {
-                clearInterval(syncTimer);
-                syncTimer = null;
-            }
-        }
-
-        // Web Audio API para efectos de sonido
-        let audioContext = null;
-        function iniciarAudioContext() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
-
-        function reproducirSonidoCelebracion() {
-            if (isMuted) return;
-            iniciarAudioContext();
+        // Cambiar entre tabs
+        function cambiarTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            // Secuencia de notas alegres
-            const notas = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-            let tiempo = audioContext.currentTime;
-            
-            notas.forEach((freq, i) => {
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
-                osc.connect(gain);
-                gain.connect(audioContext.destination);
-                osc.frequency.value = freq;
-                osc.type = 'sine';
-                gain.gain.setValueAtTime(0.3, tiempo);
-                gain.gain.exponentialRampToValueAtTime(0.01, tiempo + 0.2);
-                osc.start(tiempo);
-                osc.stop(tiempo + 0.2);
-                tiempo += 0.15;
-            });
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
         }
 
-        function actualizarHistorial() {
-            const ultimos = sacados.slice(-MAX_HISTORIAL).reverse();
-            const listaCantante = document.getElementById('lista-historial-cantante');
-            if (listaCantante) {
-                listaCantante.innerHTML = ultimos.map(n => `<div class="historial-num">${n}</div>`).join('');
+        // Función para obtener letra según el número
+        function obtenerLetra(numero) {
+            if (numero >= 1 && numero <= 15) return 'B';
+            if (numero >= 16 && numero <= 30) return 'I';
+            if (numero >= 31 && numero <= 45) return 'N';
+            if (numero >= 46 && numero <= 60) return 'G';
+            if (numero >= 61 && numero <= 75) return 'O';
+            return '';
+        }
+
+        // Sacar bola
+        function sacarBola() {
+            if (numerosCantados.length === 75) {
+                alert('¡Ya se cantaron todos los números!');
+                return;
             }
-        }
 
-        function actualizarHistorialJugador() {
-            const ultimos = sacados.slice(-MAX_HISTORIAL).reverse();
-            const listaJugador = document.getElementById('lista-historial-jugador');
-            if (listaJugador) {
-                listaJugador.innerHTML = ultimos.map(n => `<div class="historial-num">${n}</div>`).join('');
-            }
-        }
-
-        function resaltarNumeroEnCartones(numero) {
-            // Remover resaltado anterior
-            document.querySelectorAll('.c-celda.ultimo-numero').forEach(c => c.classList.remove('ultimo-numero'));
-            
-            // Resaltar el nuevo número
-            document.querySelectorAll('.c-celda').forEach(celda => {
-                if (parseInt(celda.innerText) === numero && !celda.classList.contains('vacia')) {
-                    celda.classList.add('ultimo-numero');
-                    setTimeout(() => celda.classList.remove('ultimo-numero'), 2000);
-                }
-            });
-        }
-
-        function mostrarMensajeValidacion(mensaje, tipo) {
-            const div = document.createElement('div');
-            div.className = `mensaje-validacion ${tipo}`;
-            div.innerText = mensaje;
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
-        }
-
-        function validarLinea() {
-            // Verificar si hay al menos una línea completa marcada
-            const todasLasCeldas = document.querySelectorAll('.c-celda');
-            const celdasMarcadas = new Set();
-            todasLasCeldas.forEach(celda => {
-                if (celda.classList.contains('marcado') && !celda.classList.contains('vacia')) {
-                    celdasMarcadas.add(parseInt(celda.innerText));
-                }
-            });
-            
-            for (let carton of cartones) {
-                for (let fila of carton) {
-                    const numerosFila = fila.filter(n => n !== 0);
-                    const todosEnSacados = numerosFila.every(n => sacados.includes(n));
-                    const todosMarcados = numerosFila.every(n => celdasMarcadas.has(n));
-                    
-                    if (todosEnSacados && todosMarcados) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        function validarBingo() {
-            // Verificar si hay al menos un cartón completamente marcado
-            const todasLasCeldas = document.querySelectorAll('.c-celda');
-            const celdasMarcadas = new Set();
-            todasLasCeldas.forEach(celda => {
-                if (celda.classList.contains('marcado') && !celda.classList.contains('vacia')) {
-                    celdasMarcadas.add(parseInt(celda.innerText));
-                }
-            });
-            
-            for (let carton of cartones) {
-                const todosLosNumeros = carton.flat().filter(n => n !== 0);
-                const todosEnSacados = todosLosNumeros.every(n => sacados.includes(n));
-                const todosMarcados = todosLosNumeros.every(n => celdasMarcadas.has(n));
-                
-                if (todosEnSacados && todosMarcados) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function notificarCantante(tipo, valido) {
-            if (valido) {
-                const notificacion = {
-                    tipo: tipo,
-                    timestamp: Date.now()
-                };
-                localStorage.setItem('bingo_sauce_notificacion', JSON.stringify(notificacion));
-            }
-        }
-
-        function verificarNotificaciones() {
-            try {
-                const data = localStorage.getItem('bingo_sauce_notificacion');
-                if (data) {
-                    const notif = JSON.parse(data);
-                    // Solo mostrar si es reciente (menos de 5 segundos)
-                    if (Date.now() - notif.timestamp < 5000) {
-                        const mensaje = notif.tipo === 'LÍNEA' ? textos[idioma].notificacionLinea : textos[idioma].notificacionBingo;
-                        mostrarMensajeValidacion(mensaje, 'exito');
-                        hablar(mensaje);
-                        localStorage.removeItem('bingo_sauce_notificacion');
-                    }
-                }
-            } catch (e) {
-                console.error('Error verificando notificaciones:', e);
-            }
-        }
-
-        function limpiarCartones() {
-            if (confirm('¿Estás seguro de que quieres limpiar todas las marcas del cartón?')) {
-                document.querySelectorAll('.c-celda.marcado').forEach(celda => {
-                    celda.classList.remove('marcado');
-                });
-            }
-        }
-
-        function generarNumeroCarton(columna, numerosExistentes) {
-            // Genera un número válido para la columna del cartón (0-9 para columna 0, 10-19 para columna 1, etc.)
-            let num;
-            const minNum = columna * 10;
-            const maxNum = minNum + 9;
-            const existentesSet = new Set(numerosExistentes);
-            
+            let numero;
             do {
-                num = Math.floor(Math.random() * 10) + minNum;
-                // Casos especiales: columna 0 no puede ser 0, últimas columnas no pueden pasar de 90
-                if (num === 0) num = 1;
-                if (num > 90) num = 90;
-            } while (existentesSet.has(num));
+                numero = Math.floor(Math.random() * 75) + 1;
+            } while (numerosCantados.includes(numero));
+
+            numerosCantados.push(numero);
             
-            return num;
-        }
+            const letra = obtenerLetra(numero);
+            document.getElementById('bola-letra').textContent = letra;
+            document.getElementById('bola-numero').textContent = numero;
 
-        function hablar(texto) { if (isMuted) return; window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(texto); msg.lang = idioma; window.speechSynthesis.speak(msg); }
-        function toggleMute() {
-            isMuted = !isMuted;
-            const btns = [document.getElementById('mute-cantante'), document.getElementById('mute-jugador')];
-            btns.forEach(btn => { if(btn) { btn.classList.toggle('muted', isMuted); btn.innerText = isMuted ? "🔇 VOZ: OFF" : "🔊 VOZ: ON"; if(btn.id === 'mute-jugador') btn.innerText = isMuted ? "🔇" : "🔊"; } });
-            if (isMuted) window.speechSynthesis.cancel();
-        }
-        function cambiarIdioma() {
-            idioma = document.getElementById('select-idioma').value;
-            const t = textos[idioma];
-            document.getElementById('btn-play').innerText = t.inicio;
-            document.getElementById('btn-pause').innerText = t.pausa;
-            document.getElementById('txt-restantes').innerText = t.restantes;
-            hablar(t.bienv);
-        }
-        function activarAudio() { if (!audioIniciado) { if(!isMuted) hablar(textos[idioma].bienv); audioIniciado = true; } }
-        function crearTablero() { const t = document.getElementById('tablero'); t.innerHTML = ''; for(let i=1; i<=90; i++) { let d = document.createElement('div'); d.className = 'n-off'; d.id = 'n-'+i; d.innerText = i; t.appendChild(d); } }
+            // Reproducir sonido
+            document.getElementById('audio-bola').play();
 
-        if (url.has('play')) { 
-            document.getElementById('panel-cantante').style.display = 'none'; 
-            document.getElementById('pantalla-jugador').style.display = 'block';
-        }
-        else { 
-            crearTablero(); 
-            new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?play=true", width: 140, height: 140 });
-            // Verificar notificaciones de jugadores periodicamente
-            setInterval(verificarNotificaciones, 2000);
-        }
+            // Actualizar historial cantante
+            actualizarHistorialCantante();
 
-        function prepararSorteo() {
-            if (juegoEnMarcha) return;
-            const overlay = document.getElementById('alerta-bingo');
-            const display = document.getElementById('countdown-display');
-            document.getElementById('alerta-texto').style.display = 'none';
-            document.getElementById('btn-cerrar-alerta').style.display = 'none';
-            overlay.style.display = 'flex'; display.style.display = 'block';
-            let cuenta = 5; display.innerText = cuenta;
-            const countTimer = setInterval(() => {
-                cuenta--;
-                if (cuenta > 0) display.innerText = cuenta;
-                else { clearInterval(countTimer); display.innerText = textos[idioma].ya; setTimeout(() => { overlay.style.display = 'none'; autoPlay(); }, 800); }
-            }, 1000);
-        }
-
-        function sortear() {
-            if (sacados.length >= 90) return;
-            let n; do { n = Math.floor(Math.random() * 90) + 1; } while (sacados.includes(n));
-            sacados.push(n);
-            const bolaElement = document.getElementById('bola');
-            bolaElement.innerText = n;
-            bolaElement.classList.add('pop');
-            setTimeout(() => bolaElement.classList.remove('pop'), 500);
-            document.getElementById('restantes').innerText = 90 - sacados.length;
-            document.getElementById('n-'+n).className = 'n-off n-on';
-            hablar(n);
-            guardarEstado();
-            actualizarHistorial();
-        }
-
-        function autoPlay() { juegoEnMarcha = true; document.getElementById('btn-play').disabled = true; sortear(); timer = setInterval(sortear, msVelocidad); guardarEstado(); }
-        function pausar() { clearInterval(timer); timer = null; juegoEnMarcha = false; document.getElementById('btn-play').disabled = false; window.speechSynthesis.cancel(); guardarEstado(); }
-        function reiniciarTodo() { if(confirm("RESTART?")) { pausar(); sacados = []; document.getElementById('bola').innerText = '--'; document.getElementById('restantes').innerText = '90'; crearTablero(); guardarEstado(); actualizarHistorial(); localStorage.removeItem('bingo_sauce_notificacion'); } }
-        function cambiarVelocidad() { msVelocidad = parseInt(document.getElementById('select-velocidad').value); if(juegoEnMarcha) { clearInterval(timer); timer = setInterval(sortear, msVelocidad); } }
-
-        function gritarPremio(tipo) {
-            let esValido = false;
-            let mensaje = '';
-            
-            if (tipo === 'LÍNEA') {
-                esValido = validarLinea();
-                mensaje = esValido ? textos[idioma].lineaValida : textos[idioma].lineaInvalida;
-            } else if (tipo === 'BINGO') {
-                esValido = validarBingo();
-                mensaje = esValido ? textos[idioma].bingoValido : textos[idioma].bingoInvalido;
+            // Anunciar número
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(`${letra} ${numero}`);
+                utterance.lang = 'es-ES';
+                speechSynthesis.speak(utterance);
             }
+        }
+
+        // Actualizar historial del cantante
+        function actualizarHistorialCantante() {
+            const historial = document.getElementById('historial-cantante');
+            historial.innerHTML = '';
             
-            mostrarMensajeValidacion(mensaje, esValido ? 'exito' : 'error');
-            
-            if (esValido) {
-                reproducirSonidoCelebracion();
-                notificarCantante(tipo, true);
+            numerosCantados.slice().reverse().forEach((numero, index) => {
+                const div = document.createElement('div');
+                div.className = 'numero-cantado';
+                const letra = obtenerLetra(numero);
+                div.textContent = `${letra}${numero}`;
+                div.style.animationDelay = `${index * 0.05}s`;
+                historial.appendChild(div);
+            });
+        }
+
+        // Reiniciar juego
+        function reiniciarJuego() {
+            if (confirm('¿Estás seguro de reiniciar el juego?')) {
+                numerosCantados = [];
+                document.getElementById('bola-letra').textContent = '-';
+                document.getElementById('bola-numero').textContent = '00';
+                document.getElementById('historial-cantante').innerHTML = '';
                 
-                // Mostrar alerta grande
-                const alerta = document.getElementById('alerta-bingo');
-                const texto = document.getElementById('alerta-texto');
-                document.getElementById('countdown-display').style.display = 'none';
-                texto.innerText = `¡¡${tipo} SAUCE!!`;
-                texto.style.display = 'block';
-                document.getElementById('btn-cerrar-alerta').style.display = 'block';
-                alerta.style.display = 'flex';
-                hablar(textos[idioma].premio + tipo);
+                // Limpiar cartones de todos los jugadores
+                cartones.forEach(carton => {
+                    carton.marcadas = carton.numeros.map(fila => fila.map(() => false));
+                });
+                renderizarCartones();
+            }
+        }
+
+        // Toggle auto sacar
+        function toggleAutoSacar() {
+            if (autoSacarInterval) {
+                clearInterval(autoSacarInterval);
+                autoSacarInterval = null;
+                document.querySelector('.btn-success').textContent = `⏱️ Auto Sacar (${autoSacarTiempo}s)`;
             } else {
-                hablar(mensaje);
+                let contador = autoSacarTiempo;
+                autoSacarInterval = setInterval(() => {
+                    contador--;
+                    document.getElementById('auto-timer').textContent = contador;
+                    
+                    if (contador <= 0) {
+                        sacarBola();
+                        contador = autoSacarTiempo;
+                    }
+                }, 1000);
+                document.querySelector('.btn-success').textContent = '⏸️ Pausar Auto Sacar';
             }
         }
 
-        function cerrarAlerta() { document.getElementById('alerta-bingo').style.display = 'none'; }
+        // Generar cartones
+        function generarCartones() {
+            const nombre = document.getElementById('nombre-jugador').value.trim();
+            const cantidad = parseInt(document.getElementById('cantidad-cartones').value);
 
-        function jugar(cant) {
-            document.getElementById('selector').style.display = 'none';
-            document.getElementById('zona-cartones').style.display = 'block';
-            cartones = []; // Reset cartones array
-            
-            // Cargar estado inicial inmediatamente
-            sincronizarJugador();
-            
-            // Iniciar sincronización periódica
-            iniciarSincronizacion();
-            
-            for(let i=0; i<cant; i++) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'carton-real';
-                const numCarton = Math.floor(Math.random() * MAX_CARD_NUMBER);
-                wrapper.innerHTML = `<div style="color:#333; font-size:0.9rem; font-weight:bold; display:flex; justify-content:space-between; padding: 5px;"><span>SAUCE PREMIUM</span><span>#${numCarton}</span></div>`;
-                const grid = document.createElement('div'); grid.className = 'c-grid';
-                let matriz = Array(3).fill().map(() => Array(9).fill(0));
-                for(let f=0; f<3; f++) {
-                    let cs = []; while(cs.length < 5) { let r = Math.floor(Math.random()*9); if(!cs.includes(r)) cs.push(r); }
-                    cs.forEach(c => {
-                        matriz[f][c] = generarNumeroCarton(c, matriz.flat());
-                    });
-                }
-                cartones.push(matriz); // Guardar matriz del cartón
+            if (!nombre) {
+                alert('Por favor ingresa tu nombre');
+                return;
+            }
+
+            if (!cantidad || cantidad < 1 || cantidad > 6) {
+                alert('Por favor ingresa una cantidad válida de cartones (1-6)');
+                return;
+            }
+
+            nombreJugador = nombre;
+            cartones = [];
+
+            for (let i = 0; i < cantidad; i++) {
+                cartones.push(generarCarton(i + 1));
+            }
+
+            renderizarCartones();
+        }
+
+        // Generar un cartón individual
+        function generarCarton(numero) {
+            const carton = {
+                numero: numero,
+                numeros: [],
+                marcadas: []
+            };
+
+            // Generar números para cada columna
+            for (let col = 0; col < 5; col++) {
+                const letra = letrasBingo[col];
+                const [min, max] = rangosPorLetra[letra];
+                const numerosColumna = [];
                 
-                for(let f=0; f<3; f++) {
-                    for(let c=0; c<9; c++) {
-                        let celda = document.createElement('div');
-                        celda.className = 'c-celda' + (matriz[f][c] === 0 ? ' vacia' : '');
-                        celda.innerText = matriz[f][c] || '';
-                        if(matriz[f][c] !== 0) {
-                            celda.onclick = function() { 
-                                this.classList.toggle('marcado');
-                            };
+                while (numerosColumna.length < 5) {
+                    const num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    if (!numerosColumna.includes(num)) {
+                        numerosColumna.push(num);
+                    }
+                }
+                
+                for (let fila = 0; fila < 5; fila++) {
+                    if (!carton.numeros[fila]) {
+                        carton.numeros[fila] = [];
+                        carton.marcadas[fila] = [];
+                    }
+                    carton.numeros[fila][col] = numerosColumna[fila];
+                    carton.marcadas[fila][col] = false;
+                }
+            }
+
+            // Hacer el centro LIBRE
+            carton.numeros[2][2] = 'LIBRE';
+            carton.marcadas[2][2] = true;
+
+            return carton;
+        }
+
+        // Renderizar cartones
+        function renderizarCartones() {
+            const container = document.getElementById('carton-container');
+            container.innerHTML = '';
+
+            cartones.forEach(carton => {
+                const cartonDiv = document.createElement('div');
+                cartonDiv.className = 'carton';
+                
+                const titulo = document.createElement('h3');
+                titulo.textContent = `${nombreJugador} - Cartón ${carton.numero}`;
+                cartonDiv.appendChild(titulo);
+
+                // Header con letras BINGO
+                const header = document.createElement('div');
+                header.className = 'carton-header';
+                letrasBingo.forEach(letra => {
+                    const letraDiv = document.createElement('div');
+                    letraDiv.textContent = letra;
+                    header.appendChild(letraDiv);
+                });
+                cartonDiv.appendChild(header);
+
+                // Grid de números
+                const grid = document.createElement('div');
+                grid.className = 'carton-grid';
+
+                for (let fila = 0; fila < 5; fila++) {
+                    for (let col = 0; col < 5; col++) {
+                        const celda = document.createElement('div');
+                        celda.className = 'celda';
+                        
+                        if (carton.numeros[fila][col] === 'LIBRE') {
+                            celda.classList.add('libre', 'marcada');
+                            celda.textContent = 'LIBRE';
+                        } else {
+                            celda.textContent = carton.numeros[fila][col];
+                            if (carton.marcadas[fila][col]) {
+                                celda.classList.add('marcada');
+                            }
                         }
+
+                        celda.onclick = () => marcarCelda(carton, fila, col);
                         grid.appendChild(celda);
                     }
                 }
-                wrapper.appendChild(grid);
-                document.getElementById('mis-cartones').appendChild(wrapper);
+
+                cartonDiv.appendChild(grid);
+
+                // Botón para gritar premio
+                const btnPremio = document.createElement('button');
+                btnPremio.className = 'btn-primary';
+                btnPremio.textContent = '🏆 ¡BINGO!';
+                btnPremio.style.width = '100%';
+                btnPremio.style.marginTop = '15px';
+                btnPremio.onclick = () => gritarPremio(carton);
+                cartonDiv.appendChild(btnPremio);
+
+                container.appendChild(cartonDiv);
+            });
+        }
+
+        // Marcar celda
+        function marcarCelda(carton, fila, col) {
+            if (carton.numeros[fila][col] === 'LIBRE') return;
+            
+            carton.marcadas[fila][col] = !carton.marcadas[fila][col];
+            renderizarCartones();
+        }
+
+        // Gritar premio
+        function gritarPremio(carton) {
+            const esValido = validarBingo(carton);
+            
+            if (esValido) {
+                // Solo mostrar mensajes y alertas cuando es válido
+                mostrarMensajeGanador();
+                document.getElementById('audio-ganador').play();
+                crearConfetti();
+                
+                // Marcar cartón como ganador
+                setTimeout(() => {
+                    const cartones = document.querySelectorAll('.carton');
+                    cartones[carton.numero - 1].classList.add('ganador');
+                }, 100);
+            }
+            // Si no es válido, no hacer nada (silencioso)
+        }
+
+        // Validar BINGO
+        function validarBingo(carton) {
+            // Validar todas las celdas marcadas tienen números cantados
+            for (let fila = 0; fila < 5; fila++) {
+                for (let col = 0; col < 5; col++) {
+                    if (carton.marcadas[fila][col] && carton.numeros[fila][col] !== 'LIBRE') {
+                        if (!numerosCantados.includes(carton.numeros[fila][col])) {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            // Verificar si hay al menos una línea completa
+            // Verificar filas
+            for (let fila = 0; fila < 5; fila++) {
+                if (carton.marcadas[fila].every(m => m)) {
+                    return true;
+                }
+            }
+
+            // Verificar columnas
+            for (let col = 0; col < 5; col++) {
+                if (carton.marcadas.every(fila => fila[col])) {
+                    return true;
+                }
+            }
+
+            // Verificar diagonal principal
+            if (carton.marcadas.every((fila, i) => fila[i])) {
+                return true;
+            }
+
+            // Verificar diagonal secundaria
+            if (carton.marcadas.every((fila, i) => fila[4 - i])) {
+                return true;
+            }
+
+            // Verificar BINGO completo
+            if (carton.marcadas.every(fila => fila.every(m => m))) {
+                return true;
+            }
+
+            return false;
+        }
+
+        // Mostrar mensaje de ganador
+        function mostrarMensajeGanador() {
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            
+            const mensaje = document.createElement('div');
+            mensaje.className = 'mensaje';
+            mensaje.innerHTML = `
+                <h2>🎉 ¡BINGO! 🎉</h2>
+                <p style="font-size: 1.5em; color: #764ba2;">¡Felicidades ${nombreJugador}!</p>
+                <p style="font-size: 1.2em; margin-top: 20px;">¡Has ganado!</p>
+                <button class="btn-primary" onclick="cerrarMensaje()" style="margin-top: 20px;">Cerrar</button>
+            `;
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(mensaje);
+        }
+
+        // Cerrar mensaje
+        function cerrarMensaje() {
+            document.querySelectorAll('.overlay, .mensaje').forEach(el => el.remove());
+        }
+
+        // Crear confetti
+        function crearConfetti() {
+            const colores = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colores[Math.floor(Math.random() * colores.length)];
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    confetti.style.animationDelay = Math.random() + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 30);
             }
         }
+
+        // Limpiar cartones
+        function limpiarCartones() {
+            if (confirm('¿Estás seguro de limpiar todos los cartones?')) {
+                cartones.forEach(carton => {
+                    carton.marcadas = carton.numeros.map((fila, filaIdx) => 
+                        fila.map((num, colIdx) => num === 'LIBRE')
+                    );
+                });
+                renderizarCartones();
+                
+                // Remover clase ganador de todos los cartones
+                document.querySelectorAll('.carton').forEach(c => c.classList.remove('ganador'));
+            }
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎉 Bingo Sauce cargado correctamente');
+        });
     </script>
 </body>
 </html>
-
