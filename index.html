@@ -156,6 +156,9 @@
         let syncTimer = null; let cartones = []; // Array para almacenar los cartones generados
         const STORAGE_KEY = 'bingo_sauce_state';
         const MAX_HISTORIAL = 10;
+        const SYNC_TIMEOUT_MS = 10000; // 10 segundos
+        const SYNC_INTERVAL_MS = 2000; // 2 segundos
+        const MAX_CARD_NUMBER = 9999;
         const textos = {
             "es-ES": { bienv: "Bienvenidos al Bingo Sauce.", inicio: "INICIAR", pausa: "PAUSA", restantes: "BOLAS RESTANTES", premio: "Alguien ha cantado ", ya: "¡YA!", lineaValida: "¡LÍNEA VÁLIDA! ¡Felicidades!", bingoValido: "¡BINGO VÁLIDO! ¡¡GANADOR!!", lineaInvalida: "Línea incorrecta. Revisa tu cartón.", bingoInvalido: "Bingo incorrecto. Revisa tu cartón.", notificacionLinea: "Un jugador ha cantado LÍNEA válida", notificacionBingo: "Un jugador ha cantado BINGO válido" },
             "en-US": { bienv: "Welcome to Bingo Sauce.", inicio: "START", pausa: "PAUSE", restantes: "BALLS LEFT", premio: "Someone called ", ya: "GO!", lineaValida: "VALID LINE! Congratulations!", bingoValido: "VALID BINGO! WINNER!!", lineaInvalida: "Incorrect line. Check your card.", bingoInvalido: "Incorrect bingo. Check your card.", notificacionLinea: "A player has called a valid LINE", notificacionBingo: "A player has called a valid BINGO" }
@@ -178,7 +181,7 @@
                 if (data) {
                     const estado = JSON.parse(data);
                     // Solo sincronizar si el estado es reciente (menos de 10 segundos)
-                    if (Date.now() - estado.timestamp < 10000) {
+                    if (Date.now() - estado.timestamp < SYNC_TIMEOUT_MS) {
                         return estado;
                     }
                 }
@@ -210,7 +213,7 @@
 
         function iniciarSincronizacion() {
             if (!syncTimer) {
-                syncTimer = setInterval(sincronizarJugador, 1000); // Polling cada segundo
+                syncTimer = setInterval(sincronizarJugador, SYNC_INTERVAL_MS); // Polling cada 2 segundos
             }
         }
 
@@ -232,10 +235,6 @@
         function reproducirSonidoCelebracion() {
             if (isMuted) return;
             iniciarAudioContext();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
             
             // Secuencia de notas alegres
             const notas = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
@@ -295,19 +294,19 @@
 
         function validarLinea() {
             // Verificar si hay al menos una línea completa marcada
+            const todasLasCeldas = document.querySelectorAll('.c-celda');
+            const celdasMarcadas = new Set();
+            todasLasCeldas.forEach(celda => {
+                if (celda.classList.contains('marcado') && !celda.classList.contains('vacia')) {
+                    celdasMarcadas.add(parseInt(celda.innerText));
+                }
+            });
+            
             for (let carton of cartones) {
                 for (let fila of carton) {
                     const numerosFila = fila.filter(n => n !== 0);
                     const todosEnSacados = numerosFila.every(n => sacados.includes(n));
-                    const todosMarcados = numerosFila.every(n => {
-                        const celdas = document.querySelectorAll('.c-celda');
-                        for (let celda of celdas) {
-                            if (parseInt(celda.innerText) === n && celda.classList.contains('marcado')) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
+                    const todosMarcados = numerosFila.every(n => celdasMarcadas.has(n));
                     
                     if (todosEnSacados && todosMarcados) {
                         return true;
@@ -319,18 +318,18 @@
 
         function validarBingo() {
             // Verificar si hay al menos un cartón completamente marcado
+            const todasLasCeldas = document.querySelectorAll('.c-celda');
+            const celdasMarcadas = new Set();
+            todasLasCeldas.forEach(celda => {
+                if (celda.classList.contains('marcado') && !celda.classList.contains('vacia')) {
+                    celdasMarcadas.add(parseInt(celda.innerText));
+                }
+            });
+            
             for (let carton of cartones) {
                 const todosLosNumeros = carton.flat().filter(n => n !== 0);
                 const todosEnSacados = todosLosNumeros.every(n => sacados.includes(n));
-                const todosMarcados = todosLosNumeros.every(n => {
-                    const celdas = document.querySelectorAll('.c-celda');
-                    for (let celda of celdas) {
-                        if (parseInt(celda.innerText) === n && celda.classList.contains('marcado')) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+                const todosMarcados = todosLosNumeros.every(n => celdasMarcadas.has(n));
                 
                 if (todosEnSacados && todosMarcados) {
                     return true;
@@ -373,6 +372,22 @@
                     celda.classList.remove('marcado');
                 });
             }
+        }
+
+        function generarNumeroCarton(columna, numerosExistentes) {
+            // Genera un número válido para la columna del cartón (0-9 para columna 0, 10-19 para columna 1, etc.)
+            let num;
+            const minNum = columna * 10;
+            const maxNum = minNum + 9;
+            
+            do {
+                num = Math.floor(Math.random() * 10) + minNum;
+                // Casos especiales: columna 0 no puede ser 0, últimas columnas no pueden pasar de 90
+                if (num === 0) num = 1;
+                if (num > 90) num = 90;
+            } while (numerosExistentes.includes(num));
+            
+            return num;
         }
 
         function hablar(texto) { if (isMuted) return; window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(texto); msg.lang = idioma; window.speechSynthesis.speak(msg); }
@@ -484,15 +499,14 @@
             for(let i=0; i<cant; i++) {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'carton-real';
-                const numCarton = Math.floor(Math.random()*9999);
+                const numCarton = Math.floor(Math.random() * MAX_CARD_NUMBER);
                 wrapper.innerHTML = `<div style="color:#333; font-size:0.9rem; font-weight:bold; display:flex; justify-content:space-between; padding: 5px;"><span>SAUCE PREMIUM</span><span>#${numCarton}</span></div>`;
                 const grid = document.createElement('div'); grid.className = 'c-grid';
                 let matriz = Array(3).fill().map(() => Array(9).fill(0));
                 for(let f=0; f<3; f++) {
                     let cs = []; while(cs.length < 5) { let r = Math.floor(Math.random()*9); if(!cs.includes(r)) cs.push(r); }
                     cs.forEach(c => {
-                        let num; do { num = Math.floor(Math.random()*10) + (c*10); if(num===0) num=1; if(num>90) num=90; } while(matriz.flat().includes(num));
-                        matriz[f][c] = num;
+                        matriz[f][c] = generarNumeroCarton(c, matriz.flat());
                     });
                 }
                 cartones.push(matriz); // Guardar matriz del cartón
