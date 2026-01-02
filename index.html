@@ -3,54 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BINGO SAUCE - Elite Edition</title>
+    <title>BINGO SAUCE - Elite</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌶️</text></svg>">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root { --sauce-red: #d32f2f; --sauce-orange: #ff6f00; --dark: #0e0e0e; --paper: #fff9c4; }
         body { font-family: 'Arial Black', sans-serif; background: var(--dark); color: #fff; margin: 0; padding: 10px; }
         
-        /* --- PANEL PRINCIPAL BINGO SAUCE --- */
         .header-sauce { color: var(--sauce-orange); text-shadow: 3px 3px 0px var(--sauce-red); font-size: 3.5rem; margin: 10px 0; letter-spacing: -2px; text-align: center; }
         .big-ball { 
-            width: 160px; height: 160px; background: radial-gradient(circle at 30% 30%, #fff, var(--sauce-orange)); 
+            width: 150px; height: 150px; background: radial-gradient(circle at 30% 30%, #fff, var(--sauce-orange)); 
             border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-size: 6rem; color: #333; margin: 20px auto; border: 6px solid white; box-shadow: 0 0 40px var(--sauce-red);
+            font-size: 5.5rem; color: #333; margin: 15px auto; border: 6px solid white; box-shadow: 0 0 40px var(--sauce-red);
         }
-        .stats { color: var(--sauce-orange); font-size: 1.2rem; margin-bottom: 10px; text-align: center; }
+        .stats { color: var(--sauce-orange); font-size: 1.1rem; margin-bottom: 10px; text-align: center; }
         .grid-master { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; max-width: 850px; margin: auto; background: #1a1a1a; padding: 15px; border-radius: 10px; }
         .n-off { background: #333; color: #555; padding: 8px; border-radius: 5px; font-size: 0.9rem; text-align: center; }
         .n-on { background: var(--sauce-red); color: white; font-weight: bold; box-shadow: 0 0 15px var(--sauce-red); border: 1px solid white; }
 
-        /* CONTROLES */
-        .controls-panel { background: #222; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; text-align: center; }
-        .speed-control { margin-top: 15px; font-family: sans-serif; color: var(--sauce-orange); font-weight: bold; }
-        select { background: #444; color: white; border: 1px solid var(--sauce-orange); padding: 8px; border-radius: 5px; cursor: pointer; }
+        .controls-panel { background: #222; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; text-align: center; position: relative; }
+        .top-tools { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; align-items: center; }
+        
+        .btn-mute { background: #444; border: 2px solid var(--sauce-orange); color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; }
+        .btn-mute.muted { background: var(--sauce-red); border-color: white; }
 
-        /* --- VISTA JUGADOR --- */
+        select { background: #333; color: white; border: 1px solid var(--sauce-orange); padding: 8px; border-radius: 5px; cursor: pointer; }
+
         #pantalla-jugador { display: none; text-align: center; }
-        .carton-real { 
-            background: var(--paper); padding: 10px; border-radius: 4px; margin: 0 auto 25px auto;
-            border: 3px solid #444; box-shadow: 8px 8px 0px #000; max-width: 480px;
-        }
+        .carton-real { background: var(--paper); padding: 10px; border-radius: 4px; margin: 0 auto 25px auto; border: 3px solid #444; box-shadow: 8px 8px 0px #000; max-width: 480px; }
         .c-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #444; }
         .c-celda { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #1a237e; font-weight: bold; position: relative; cursor: pointer; }
         .c-celda.vacia { background: #e0e0e0; }
         .marcado::after { content: '✖'; position: absolute; color: var(--sauce-red); font-size: 2.2rem; opacity: 0.8; }
 
-        .btn-sauce { background: var(--sauce-red); border: none; padding: 15px 30px; color: white; font-weight: bold; border-radius: 50px; cursor: pointer; border-bottom: 5px solid #8b0000; margin: 5px; transition: 0.2s; }
-        .btn-sauce:disabled { background: #444; border-bottom-color: #222; opacity: 0.6; cursor: not-allowed; }
+        .btn-sauce { background: var(--sauce-red); border: none; padding: 12px 25px; color: white; font-weight: bold; border-radius: 50px; cursor: pointer; border-bottom: 5px solid #8b0000; margin: 5px; }
+        .btn-sauce:disabled { background: #444; border-bottom-color: #222; opacity: 0.6; }
         
-        .player-actions { display: flex; flex-direction: column; gap: 10px; max-width: 480px; margin: auto; }
-        .btn-linea { background: #2980b9; font-size: 1.8rem; padding: 15px; border-bottom-color: #1a5276; }
-        .btn-bingo { background: var(--sauce-orange); font-size: 2.5rem; padding: 20px; border-bottom-color: #b34e00; }
+        .btn-linea { background: #2980b9; font-size: 1.8rem; padding: 15px; border-bottom-color: #1a5276; width: 100%; max-width: 480px; }
+        .btn-bingo { background: var(--sauce-orange); font-size: 2.5rem; padding: 20px; border-bottom-color: #b34e00; width: 100%; max-width: 480px; }
         
-        #qrcode { background: white; padding: 15px; display: inline-block; margin: 25px; border-radius: 15px; border: 5px solid var(--sauce-orange); }
-        
+        #qrcode { background: white; padding: 15px; display: inline-block; margin: 25px; border-radius: 15px; }
         .overlay-alerta { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; font-size: 4rem; text-align: center; }
         .blink { animation: blink 0.4s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } }
-
-        #countdown-display { font-size: 12rem; color: var(--sauce-orange); text-shadow: 0 0 30px var(--sauce-red); font-weight: 900; }
+        #countdown-display { font-size: 12rem; color: var(--sauce-orange); text-shadow: 0 0 30px var(--sauce-red); }
     </style>
 </head>
 <body onclick="activarAudio()">
@@ -58,25 +56,30 @@
     <div id="alerta-bingo" class="overlay-alerta">
         <div id="countdown-display" style="display:none;">5</div>
         <div class="blink" id="alerta-texto" style="display:none;">¡¡BINGO SAUCE!!</div>
-        <button id="btn-cerrar-alerta" class="btn-sauce" onclick="cerrarAlerta()" style="display:none; font-size: 1.5rem; margin-top: 20px;">CONTINUAR</button>
+        <button id="btn-cerrar-alerta" class="btn-sauce" onclick="cerrarAlerta()" style="display:none; font-size: 1.5rem; margin-top: 20px;">OK</button>
     </div>
 
     <div id="panel-cantante">
         <h1 class="header-sauce">BINGO SAUCE</h1>
         <div class="controls-panel">
-            <div class="stats">BOLAS RESTANTES: <span id="restantes">90</span></div>
+            <div class="top-tools">
+                <button id="mute-cantante" class="btn-mute" onclick="toggleMute()">🔊 VOZ: ON</button>
+                <select id="select-idioma" onchange="cambiarIdioma()">
+                    <option value="es-ES">🇪🇸 ES</option>
+                    <option value="en-US">🇺🇸 EN</option>
+                </select>
+            </div>
+            <div class="stats"><span id="txt-restantes">BOLAS RESTANTES</span>: <span id="restantes">90</span></div>
             <div class="big-ball" id="bola">--</div>
             <button class="btn-sauce" id="btn-play" onclick="prepararSorteo()">INICIAR</button>
             <button class="btn-sauce" id="btn-pause" onclick="pausar()" style="background:#f39c12; border-bottom-color:#b34e00;">PAUSA</button>
             <button class="btn-sauce" onclick="reiniciarTodo()" style="background:#444; border-bottom-color:#222;">REINICIAR</button>
-            
-            <div class="speed-control">
-                RITMO DE LA SALSA: 
+            <div class="speed-control" style="margin-top:10px;">
                 <select id="select-velocidad" onchange="cambiarVelocidad()">
-                    <option value="8000">TORTUGA (8s)</option>
-                    <option value="4000" selected>NORMAL (4s)</option>
-                    <option value="2500">RÁPIDO (2.5s)</option>
-                    <option value="1500">¡FLASH! (1.5s)</option>
+                    <option value="8000">TORTUGA</option>
+                    <option value="4000" selected>NORMAL</option>
+                    <option value="2500">RÁPIDO</option>
+                    <option value="1500">FLASH</option>
                 </select>
             </div>
         </div>
@@ -85,55 +88,50 @@
     </div>
 
     <div id="pantalla-jugador">
-        <h1 class="header-sauce" style="font-size: 2rem;">BINGO SAUCE</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+            <h1 class="header-sauce" style="font-size: 1.5rem; margin: 0;">BINGO SAUCE</h1>
+            <button id="mute-jugador" class="btn-mute" onclick="toggleMute()">🔊</button>
+        </div>
         <div id="selector">
             <button class="btn-sauce" onclick="jugar(1)">1 CARTÓN</button>
             <button class="btn-sauce" onclick="jugar(2)">2 CARTONES</button>
             <button class="btn-sauce" onclick="jugar(3)">3 CARTONES</button>
         </div>
-        <div id="zona-cartones" style="display:none;">
+        <div id="zona-cartones" style="display:none; padding: 10px;">
             <div id="mis-cartones"></div>
-            <div class="player-actions">
-                <button class="btn-sauce btn-linea" onclick="gritarPremio('LÍNEA')">¡LÍNEA!</button>
-                <button class="btn-sauce btn-bingo" onclick="gritarPremio('BINGO')">¡BINGO!</button>
-            </div>
+            <button class="btn-sauce btn-linea" onclick="gritarPremio('LÍNEA')">¡LÍNEA!</button>
+            <button class="btn-sauce btn-bingo" onclick="gritarPremio('BINGO')">¡BINGO!</button>
         </div>
     </div>
 
     <script>
         const url = new URLSearchParams(window.location.search);
-        let sacados = [];
-        let timer = null;
-        let audioIniciado = false;
-        let msVelocidad = 4000;
-        let juegoEnMarcha = false;
+        let sacados = []; let timer = null; let audioIniciado = false; let msVelocidad = 4000; let juegoEnMarcha = false; let idioma = "es-ES"; let isMuted = false;
+        const textos = {
+            "es-ES": { bienv: "Bienvenidos al Bingo Sauce.", inicio: "INICIAR", pausa: "PAUSA", restantes: "BOLAS RESTANTES", premio: "Alguien ha cantado ", ya: "¡YA!" },
+            "en-US": { bienv: "Welcome to Bingo Sauce.", inicio: "START", pausa: "PAUSE", restantes: "BALLS LEFT", premio: "Someone called ", ya: "GO!" }
+        };
 
-        function hablar(texto) {
-            window.speechSynthesis.cancel();
-            const msg = new SpeechSynthesisUtterance(texto);
-            msg.lang = 'es-ES';
-            window.speechSynthesis.speak(msg);
+        function hablar(texto) { if (isMuted) return; window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(texto); msg.lang = idioma; window.speechSynthesis.speak(msg); }
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btns = [document.getElementById('mute-cantante'), document.getElementById('mute-jugador')];
+            btns.forEach(btn => { if(btn) { btn.classList.toggle('muted', isMuted); btn.innerText = isMuted ? "🔇 VOZ: OFF" : "🔊 VOZ: ON"; if(btn.id === 'mute-jugador') btn.innerText = isMuted ? "🔇" : "🔊"; } });
+            if (isMuted) window.speechSynthesis.cancel();
         }
-
-        function activarAudio() { if (!audioIniciado) { hablar("Bienvenidos al Bingo Sauce. ¡Suerte!"); audioIniciado = true; } }
-
-        function crearTablero() {
-            const t = document.getElementById('tablero');
-            t.innerHTML = '';
-            for(let i=1; i<=90; i++) {
-                let d = document.createElement('div');
-                d.className = 'n-off'; d.id = 'n-'+i; d.innerText = i;
-                t.appendChild(d);
-            }
+        function cambiarIdioma() {
+            idioma = document.getElementById('select-idioma').value;
+            const t = textos[idioma];
+            document.getElementById('btn-play').innerText = t.inicio;
+            document.getElementById('btn-pause').innerText = t.pausa;
+            document.getElementById('txt-restantes').innerText = t.restantes;
+            hablar(t.bienv);
         }
+        function activarAudio() { if (!audioIniciado) { if(!isMuted) hablar(textos[idioma].bienv); audioIniciado = true; } }
+        function crearTablero() { const t = document.getElementById('tablero'); t.innerHTML = ''; for(let i=1; i<=90; i++) { let d = document.createElement('div'); d.className = 'n-off'; d.id = 'n-'+i; d.innerText = i; t.appendChild(d); } }
 
-        if (url.has('play')) {
-            document.getElementById('panel-cantante').style.display = 'none';
-            document.getElementById('pantalla-jugador').style.display = 'block';
-        } else {
-            crearTablero();
-            new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?play=true", width: 160, height: 160 });
-        }
+        if (url.has('play')) { document.getElementById('panel-cantante').style.display = 'none'; document.getElementById('pantalla-jugador').style.display = 'block'; }
+        else { crearTablero(); new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?play=true", width: 140, height: 140 }); }
 
         function prepararSorteo() {
             if (juegoEnMarcha) return;
@@ -141,32 +139,18 @@
             const display = document.getElementById('countdown-display');
             document.getElementById('alerta-texto').style.display = 'none';
             document.getElementById('btn-cerrar-alerta').style.display = 'none';
-
-            overlay.style.display = 'flex';
-            display.style.display = 'block';
-
-            let cuenta = 5;
-            display.innerText = cuenta;
-
+            overlay.style.display = 'flex'; display.style.display = 'block';
+            let cuenta = 5; display.innerText = cuenta;
             const countTimer = setInterval(() => {
                 cuenta--;
-                if (cuenta > 0) {
-                    display.innerText = cuenta;
-                } else {
-                    clearInterval(countTimer);
-                    display.innerText = "¡YA!";
-                    setTimeout(() => {
-                        overlay.style.display = 'none';
-                        autoPlay();
-                    }, 800);
-                }
+                if (cuenta > 0) display.innerText = cuenta;
+                else { clearInterval(countTimer); display.innerText = textos[idioma].ya; setTimeout(() => { overlay.style.display = 'none'; autoPlay(); }, 800); }
             }, 1000);
         }
 
         function sortear() {
-            if (sacados.length >= 90) { pausar(); hablar("Tómbola vacía"); return; }
-            let n;
-            do { n = Math.floor(Math.random() * 90) + 1; } while (sacados.includes(n));
+            if (sacados.length >= 90) return;
+            let n; do { n = Math.floor(Math.random() * 90) + 1; } while (sacados.includes(n));
             sacados.push(n);
             document.getElementById('bola').innerText = n;
             document.getElementById('restantes').innerText = 90 - sacados.length;
@@ -174,48 +158,20 @@
             hablar(n);
         }
 
-        function autoPlay() {
-            juegoEnMarcha = true;
-            document.getElementById('btn-play').disabled = true;
-            sortear();
-            timer = setInterval(sortear, msVelocidad);
-        }
-
-        function pausar() {
-            clearInterval(timer);
-            timer = null;
-            juegoEnMarcha = false;
-            document.getElementById('btn-play').disabled = false;
-            window.speechSynthesis.cancel();
-        }
-
-        function reiniciarTodo() {
-            if(confirm("¿Reiniciar BINGO SAUCE?")) {
-                pausar(); sacados = [];
-                document.getElementById('bola').innerText = '--';
-                document.getElementById('restantes').innerText = '90';
-                crearTablero();
-            }
-        }
-
-        function cambiarVelocidad() {
-            msVelocidad = parseInt(document.getElementById('select-velocidad').value);
-            if(juegoEnMarcha) { clearInterval(timer); timer = setInterval(sortear, msVelocidad); }
-        }
+        function autoPlay() { juegoEnMarcha = true; document.getElementById('btn-play').disabled = true; sortear(); timer = setInterval(sortear, msVelocidad); }
+        function pausar() { clearInterval(timer); timer = null; juegoEnMarcha = false; document.getElementById('btn-play').disabled = false; window.speechSynthesis.cancel(); }
+        function reiniciarTodo() { if(confirm("RESTART?")) { pausar(); sacados = []; document.getElementById('bola').innerText = '--'; document.getElementById('restantes').innerText = '90'; crearTablero(); } }
+        function cambiarVelocidad() { msVelocidad = parseInt(document.getElementById('select-velocidad').value); if(juegoEnMarcha) { clearInterval(timer); timer = setInterval(sortear, msVelocidad); } }
 
         function gritarPremio(tipo) {
             const alerta = document.getElementById('alerta-bingo');
             const texto = document.getElementById('alerta-texto');
-            const display = document.getElementById('countdown-display');
-            const btnCerrar = document.getElementById('btn-cerrar-alerta');
-            
-            display.style.display = 'none';
+            document.getElementById('countdown-display').style.display = 'none';
             texto.innerText = `¡¡${tipo} SAUCE!!`;
             texto.style.display = 'block';
-            btnCerrar.style.display = 'block';
+            document.getElementById('btn-cerrar-alerta').style.display = 'block';
             alerta.style.display = 'flex';
-            
-            hablar(`Atención, alguien ha cantado ${tipo}`);
+            hablar(textos[idioma].premio + tipo);
             pausar();
         }
 
