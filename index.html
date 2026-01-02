@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Pro Automático</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --primary: #e67e22; --dark: #1a1a1a; --light: #f1f1f1; --accent: #27ae60; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--light); text-align: center; margin: 0; padding: 20px; }
+        
+        /* Panel del Cantante */
+        .container { max-width: 900px; margin: auto; }
+        .controls { background: #333; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #444; }
+        .grid-bingo { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin: 20px auto; }
+        .num { background: #222; padding: 10px; border-radius: 5px; border: 1px solid #444; color: #666; transition: 0.3s; }
+        .num.active { background: var(--primary); color: white; font-weight: bold; box-shadow: 0 0 15px var(--primary); border-color: white; }
+        
+        /* Cartón del Jugador */
+        #pantalla-jugador { display: none; }
+        .carton { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 350px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; }
+        .celda { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-radius: 50%; color: #333; }
+        .celda.marcado { background: var(--accent); color: white; }
+
+        /* Estética de botones */
+        button { background: var(--primary); border: none; padding: 12px 20px; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; margin: 5px; min-width: 100px; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        .btn-reset { background: #c0392b; }
+        .btn-pause { background: #f39c12; }
+        
+        #qrcode { background: white; padding: 10px; display: inline-block; border-radius: 5px; margin-top: 15px; }
+        .big-number { font-size: 6rem; color: var(--primary); margin: 10px 0; font-weight: bold; text-shadow: 0 0 20px rgba(230, 126, 34, 0.4); }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="panel-cantante">
+        <h1>BINGO AUTOMÁTICO</h1>
+        
+        <div class="controls">
+            <div class="big-number" id="numero-actual">--</div>
+            <div id="status">Listo para empezar</div>
+            <br>
+            <button id="btn-start" onclick="iniciarBingo()">INICIAR</button>
+            <button id="btn-pause" class="btn-pause" onclick="pausarBingo()" disabled>PAUSA</button>
+            <button class="btn-reset" onclick="reiniciarJuego()">REINICIAR</button>
+            <br><br>
+            <label>Velocidad: 
+                <select id="velocidad" onchange="cambiarVelocidad()">
+                    <option value="5000">Lento (5s)</option>
+                    <option value="3000" selected>Normal (3s)</option>
+                    <option value="1500">Rápido (1.5s)</option>
+                </select>
+            </label>
+        </div>
+        
+        <div class="grid-bingo" id="tablero-principal"></div>
+
+        <div id="seccion-qr">
+            <p>Escanea para tu cartón:</p>
+            <div id="qrcode"></div>
+        </div>
+    </div>
+
+    <div class="container" id="pantalla-jugador">
+        <h1>TU CARTÓN</h1>
+        <div class="carton" id="mi-carton"></div>
+        <button onclick="location.reload()">NUEVO CARTÓN</button>
+    </div>
+
+    <script>
+        let numerosSacados = [];
+        let intervalo = null;
+        let pausado = false;
+        let tiempo = 3000;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('play')) {
+            document.getElementById('panel-cantante').style.display = 'none';
+            document.getElementById('pantalla-jugador').style.display = 'block';
+            generarCarton();
+        } else {
+            generarTablero();
+            new QRCode(document.getElementById("qrcode"), {
+                text: window.location.href + "?play=true",
+                width: 120, height: 120
+            });
+        }
+
+        function generarTablero() {
+            const tablero = document.getElementById('tablero-principal');
+            for(let i=1; i<=90; i++) {
+                let div = document.createElement('div');
+                div.className = 'num'; div.id = 'n-' + i; div.innerText = i;
+                tablero.appendChild(div);
+            }
+        }
+
+        function hablar(texto) {
+            const mensaje = new SpeechSynthesisUtterance(texto);
+            mensaje.lang = 'es-ES';
+            mensaje.rate = 1;
+            window.speechSynthesis.speak(mensaje);
+        }
+
+        function sacarNumero() {
+            if (numerosSacados.length >= 90) {
+                clearInterval(intervalo);
+                hablar("Juego terminado");
+                return;
+            }
+            
+            let n;
+            do { n = Math.floor(Math.random() * 90) + 1; } while (numerosSacados.includes(n));
+            
+            numerosSacados.push(n);
+            document.getElementById('numero-actual').innerText = n;
+            document.getElementById('n-' + n).classList.add('active');
+            hablar(n);
+        }
+
+        function iniciarBingo() {
+            if (pausado) {
+                pausado = false;
+            }
+            document.getElementById('btn-start').disabled = true;
+            document.getElementById('btn-pause').disabled = false;
+            document.getElementById('status').innerText = "Sorteando...";
+            sacarNumero();
+            intervalo = setInterval(sacarNumero, tiempo);
+        }
+
+        function pausarBingo() {
+            clearInterval(intervalo);
+            pausado = true;
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-pause').disabled = true;
+            document.getElementById('status').innerText = "Juego en pausa";
+            window.speechSynthesis.cancel();
+        }
+
+        function reiniciarJuego() {
+            if(confirm("¿Seguro que quieres reiniciar todo el tablero?")) {
+                location.reload();
+            }
+        }
+
+        function cambiarVelocidad() {
+            tiempo = document.getElementById('velocidad').value;
+            if (intervalo && !pausado) {
+                clearInterval(intervalo);
+                intervalo = setInterval(sacarNumero, tiempo);
+            }
+        }
+
+        function generarCarton() {
+            const cartonDiv = document.getElementById('mi-carton');
+            let numeros = [];
+            while(numeros.length < 15) {
+                let r = Math.floor(Math.random() * 90) + 1;
+                if(!numeros.includes(r)) numeros.push(r);
+            }
+            numeros.sort((a, b) => a - b).forEach(num => {
+                let div = document.createElement('div');
+                div.className = 'celda'; div.innerText = num;
+                div.onclick = function() { this.classList.toggle('marcado'); };
+                cartonDiv.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
