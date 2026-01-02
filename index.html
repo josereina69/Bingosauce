@@ -40,23 +40,25 @@
         .btn-sauce { background: var(--sauce-red); border: none; padding: 15px 30px; color: white; font-weight: bold; border-radius: 50px; cursor: pointer; border-bottom: 5px solid #8b0000; margin: 5px; transition: 0.2s; }
         .btn-sauce:disabled { background: #444; border-bottom-color: #222; opacity: 0.6; cursor: not-allowed; }
         
-        /* BOTONES JUGADOR */
         .player-actions { display: flex; flex-direction: column; gap: 10px; max-width: 480px; margin: auto; }
         .btn-linea { background: #2980b9; font-size: 1.8rem; padding: 15px; border-bottom-color: #1a5276; }
         .btn-bingo { background: var(--sauce-orange); font-size: 2.5rem; padding: 20px; border-bottom-color: #b34e00; }
         
         #qrcode { background: white; padding: 15px; display: inline-block; margin: 25px; border-radius: 15px; border: 5px solid var(--sauce-orange); }
         
-        .overlay-alerta { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(211, 47, 47, 0.95); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; font-size: 4rem; text-align: center; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } }
+        .overlay-alerta { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; font-size: 4rem; text-align: center; }
         .blink { animation: blink 0.4s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } }
+
+        #countdown-display { font-size: 12rem; color: var(--sauce-orange); text-shadow: 0 0 30px var(--sauce-red); font-weight: 900; }
     </style>
 </head>
 <body onclick="activarAudio()">
 
     <div id="alerta-bingo" class="overlay-alerta">
-        <div class="blink" id="alerta-texto">¡¡BINGO SAUCE!!</div>
-        <button class="btn-sauce" onclick="cerrarAlerta()" style="font-size: 1.5rem; margin-top: 20px;">CONTINUAR JUEGO</button>
+        <div id="countdown-display" style="display:none;">5</div>
+        <div class="blink" id="alerta-texto" style="display:none;">¡¡BINGO SAUCE!!</div>
+        <button id="btn-cerrar-alerta" class="btn-sauce" onclick="cerrarAlerta()" style="display:none; font-size: 1.5rem; margin-top: 20px;">CONTINUAR</button>
     </div>
 
     <div id="panel-cantante">
@@ -64,7 +66,7 @@
         <div class="controls-panel">
             <div class="stats">BOLAS RESTANTES: <span id="restantes">90</span></div>
             <div class="big-ball" id="bola">--</div>
-            <button class="btn-sauce" id="btn-play" onclick="autoPlay()">INICIAR</button>
+            <button class="btn-sauce" id="btn-play" onclick="prepararSorteo()">INICIAR</button>
             <button class="btn-sauce" id="btn-pause" onclick="pausar()" style="background:#f39c12; border-bottom-color:#b34e00;">PAUSA</button>
             <button class="btn-sauce" onclick="reiniciarTodo()" style="background:#444; border-bottom-color:#222;">REINICIAR</button>
             
@@ -79,9 +81,7 @@
             </div>
         </div>
         <div class="grid-master" id="tablero"></div>
-        <div style="text-align: center;">
-            <div id="qrcode"></div>
-        </div>
+        <div style="text-align: center;"><div id="qrcode"></div></div>
     </div>
 
     <div id="pantalla-jugador">
@@ -115,7 +115,7 @@
             window.speechSynthesis.speak(msg);
         }
 
-        function activarAudio() { if (!audioIniciado) { hablar("Bienvenidos al Bingo Sauce."); audioIniciado = true; } }
+        function activarAudio() { if (!audioIniciado) { hablar("Bienvenidos al Bingo Sauce. ¡Suerte!"); audioIniciado = true; } }
 
         function crearTablero() {
             const t = document.getElementById('tablero');
@@ -135,6 +135,34 @@
             new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?play=true", width: 160, height: 160 });
         }
 
+        function prepararSorteo() {
+            if (juegoEnMarcha) return;
+            const overlay = document.getElementById('alerta-bingo');
+            const display = document.getElementById('countdown-display');
+            document.getElementById('alerta-texto').style.display = 'none';
+            document.getElementById('btn-cerrar-alerta').style.display = 'none';
+
+            overlay.style.display = 'flex';
+            display.style.display = 'block';
+
+            let cuenta = 5;
+            display.innerText = cuenta;
+
+            const countTimer = setInterval(() => {
+                cuenta--;
+                if (cuenta > 0) {
+                    display.innerText = cuenta;
+                } else {
+                    clearInterval(countTimer);
+                    display.innerText = "¡YA!";
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        autoPlay();
+                    }, 800);
+                }
+            }, 1000);
+        }
+
         function sortear() {
             if (sacados.length >= 90) { pausar(); hablar("Tómbola vacía"); return; }
             let n;
@@ -147,7 +175,6 @@
         }
 
         function autoPlay() {
-            if (juegoEnMarcha) return;
             juegoEnMarcha = true;
             document.getElementById('btn-play').disabled = true;
             sortear();
@@ -179,18 +206,21 @@
         function gritarPremio(tipo) {
             const alerta = document.getElementById('alerta-bingo');
             const texto = document.getElementById('alerta-texto');
+            const display = document.getElementById('countdown-display');
+            const btnCerrar = document.getElementById('btn-cerrar-alerta');
+            
+            display.style.display = 'none';
             texto.innerText = `¡¡${tipo} SAUCE!!`;
+            texto.style.display = 'block';
+            btnCerrar.style.display = 'block';
             alerta.style.display = 'flex';
+            
             hablar(`Atención, alguien ha cantado ${tipo}`);
-            // Pausa el juego en el dispositivo del jugador
             pausar();
         }
 
-        function cerrarAlerta() {
-            document.getElementById('alerta-bingo').style.display = 'none';
-        }
+        function cerrarAlerta() { document.getElementById('alerta-bingo').style.display = 'none'; }
 
-        // GENERACIÓN DE CARTONES
         function jugar(cant) {
             document.getElementById('selector').style.display = 'none';
             document.getElementById('zona-cartones').style.display = 'block';
