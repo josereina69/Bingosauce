@@ -156,7 +156,7 @@
         let syncTimer = null; let cartones = []; // Array para almacenar los cartones generados
         const STORAGE_KEY = 'bingo_sauce_state';
         const MAX_HISTORIAL = 10;
-        const SYNC_TIMEOUT_MS = 10000; // 10 segundos
+        const SYNC_TIMEOUT_MS = 1800000; // 30 minutos (para que el historial persista)
         const SYNC_INTERVAL_MS = 2000; // 2 segundos
         const MAX_CARD_NUMBER = 9999;
         const textos = {
@@ -180,10 +180,14 @@
                 const data = localStorage.getItem(STORAGE_KEY);
                 if (data) {
                     const estado = JSON.parse(data);
-                    // Solo sincronizar si el estado es reciente (menos de 10 segundos)
+                    // Solo sincronizar si el estado es reciente (menos de 30 minutos)
                     if (Date.now() - estado.timestamp < SYNC_TIMEOUT_MS) {
                         return estado;
+                    } else {
+                        console.log('Estado demasiado antiguo, ignorando');
                     }
+                } else {
+                    console.log('No hay estado guardado en localStorage');
                 }
             } catch (e) {
                 console.error('Error cargando estado:', e);
@@ -196,6 +200,8 @@
             if (estado && estado.sacados) {
                 const ultimoSacado = sacados.length > 0 ? sacados[sacados.length - 1] : null;
                 const nuevoUltimo = estado.ultimoNumero;
+                
+                console.log('Sincronizando - Sacados:', estado.sacados.length, 'Último:', nuevoUltimo);
                 
                 // Actualizar array de sacados
                 sacados = estado.sacados;
@@ -219,6 +225,8 @@
                         bolaJugador.innerText = nuevoUltimo;
                     }
                 }
+            } else {
+                console.log('No hay estado válido para sincronizar');
             }
         }
 
@@ -546,3 +554,4 @@
     </script>
 </body>
 </html>
+
