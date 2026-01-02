@@ -17,7 +17,10 @@
             width: 150px; height: 150px; background: radial-gradient(circle at 30% 30%, #fff, var(--sauce-orange)); 
             border-radius: 50%; display: flex; align-items: center; justify-content: center; 
             font-size: 5.5rem; color: #333; margin: 15px auto; border: 6px solid white; box-shadow: 0 0 40px var(--sauce-red);
+            transition: transform 0.3s ease;
         }
+        .big-ball.pop { animation: popBounce 0.5s ease; }
+        @keyframes popBounce { 0% { transform: scale(1); } 30% { transform: scale(1.2); } 50% { transform: scale(0.95); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .stats { color: var(--sauce-orange); font-size: 1.1rem; margin-bottom: 10px; text-align: center; }
         .grid-master { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; max-width: 850px; margin: auto; background: #1a1a1a; padding: 15px; border-radius: 10px; }
         .n-off { background: #333; color: #555; padding: 8px; border-radius: 5px; font-size: 0.9rem; text-align: center; }
@@ -34,11 +37,17 @@
         #pantalla-jugador { display: none; text-align: center; }
         .carton-real { background: var(--paper); padding: 10px; border-radius: 4px; margin: 0 auto 25px auto; border: 3px solid #444; box-shadow: 8px 8px 0px #000; max-width: 480px; }
         .c-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #444; }
-        .c-celda { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #1a237e; font-weight: bold; position: relative; cursor: pointer; }
+        .c-celda { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #1a237e; font-weight: bold; position: relative; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .c-celda.vacia { background: #e0e0e0; }
-        .marcado::after { content: '✖'; position: absolute; color: var(--sauce-red); font-size: 2.2rem; opacity: 0.8; }
+        .marcado::after { content: '✖'; position: absolute; color: var(--sauce-red); font-size: 2.2rem; opacity: 0.8; animation: markPop 0.3s ease; }
+        @keyframes markPop { 0% { transform: scale(0) rotate(0deg); } 50% { transform: scale(1.3) rotate(180deg); } 100% { transform: scale(1) rotate(180deg); } }
+        .c-celda:hover:not(.vacia) { transform: scale(1.05); box-shadow: 0 0 10px rgba(211, 47, 47, 0.5); }
+        .c-celda.ultimo-numero { animation: highlightNumber 2s ease-in-out; box-shadow: 0 0 20px var(--sauce-orange); border: 2px solid var(--sauce-orange); }
+        @keyframes highlightNumber { 0%, 100% { box-shadow: 0 0 20px var(--sauce-orange); } 50% { box-shadow: 0 0 30px var(--sauce-orange), 0 0 40px var(--sauce-red); } }
 
-        .btn-sauce { background: var(--sauce-red); border: none; padding: 12px 25px; color: white; font-weight: bold; border-radius: 50px; cursor: pointer; border-bottom: 5px solid #8b0000; margin: 5px; }
+        .btn-sauce { background: var(--sauce-red); border: none; padding: 12px 25px; color: white; font-weight: bold; border-radius: 50px; cursor: pointer; border-bottom: 5px solid #8b0000; margin: 5px; transition: transform 0.1s ease, box-shadow 0.1s ease; }
+        .btn-sauce:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(211, 47, 47, 0.4); }
+        .btn-sauce:active:not(:disabled) { transform: translateY(1px); }
         .btn-sauce:disabled { background: #444; border-bottom-color: #222; opacity: 0.6; }
         
         .btn-linea { background: #2980b9; font-size: 1.8rem; padding: 15px; border-bottom-color: #1a5276; width: 100%; max-width: 480px; }
@@ -49,6 +58,30 @@
         .blink { animation: blink 0.4s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } }
         #countdown-display { font-size: 12rem; color: var(--sauce-orange); text-shadow: 0 0 30px var(--sauce-red); }
+        
+        .historial-bolas { background: #1a1a1a; padding: 10px; border-radius: 10px; margin: 10px auto; max-width: 850px; text-align: center; }
+        .historial-bolas .titulo { color: var(--sauce-orange); font-size: 0.9rem; margin-bottom: 8px; }
+        .historial-lista { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .historial-num { background: var(--sauce-red); color: white; padding: 8px 12px; border-radius: 50%; font-size: 1.1rem; font-weight: bold; min-width: 40px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        
+        .btn-limpiar { background: #e67e22; border-bottom-color: #b34e00; font-size: 1.3rem; padding: 12px; width: 100%; max-width: 480px; margin-top: 10px; }
+        
+        .mensaje-validacion { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 30px 50px; border-radius: 15px; font-size: 2rem; z-index: 999; border: 3px solid var(--sauce-orange); animation: fadeInOut 3s ease; }
+        .mensaje-validacion.exito { border-color: #27ae60; color: #27ae60; }
+        .mensaje-validacion.error { border-color: var(--sauce-red); color: var(--sauce-red); }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 10% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 90% { opacity: 1; } 100% { opacity: 0; } }
+        
+        @media (max-width: 400px) {
+            .header-sauce { font-size: 2rem; }
+            .big-ball { width: 100px; height: 100px; font-size: 3.5rem; }
+            .stats { font-size: 0.9rem; }
+            .c-celda { font-size: 1rem; }
+            .btn-sauce { padding: 10px 20px; font-size: 0.9rem; }
+            .btn-linea { font-size: 1.3rem; padding: 12px; }
+            .btn-bingo { font-size: 1.8rem; padding: 15px; }
+            .carton-real { padding: 5px; }
+            .historial-num { padding: 6px 10px; font-size: 0.9rem; min-width: 35px; }
+        }
     </style>
 </head>
 <body onclick="activarAudio()">
@@ -83,6 +116,10 @@
                 </select>
             </div>
         </div>
+        <div class="historial-bolas" id="historial-cantante">
+            <div class="titulo">ÚLTIMAS BOLAS CANTADAS</div>
+            <div class="historial-lista" id="lista-historial-cantante"></div>
+        </div>
         <div class="grid-master" id="tablero"></div>
         <div style="text-align: center;"><div id="qrcode"></div></div>
     </div>
@@ -98,19 +135,261 @@
             <button class="btn-sauce" onclick="jugar(3)">3 CARTONES</button>
         </div>
         <div id="zona-cartones" style="display:none; padding: 10px;">
+            <div class="historial-bolas" id="historial-jugador">
+                <div class="titulo">ÚLTIMAS BOLAS CANTADAS</div>
+                <div class="historial-lista" id="lista-historial-jugador"></div>
+            </div>
+            <div id="numero-actual-grande" style="text-align: center; margin: 10px 0;">
+                <div style="color: var(--sauce-orange); font-size: 0.9rem;">ÚLTIMO NÚMERO</div>
+                <div class="big-ball" id="bola-jugador" style="width: 100px; height: 100px; font-size: 3.5rem; margin: 10px auto;">--</div>
+            </div>
             <div id="mis-cartones"></div>
             <button class="btn-sauce btn-linea" onclick="gritarPremio('LÍNEA')">¡LÍNEA!</button>
             <button class="btn-sauce btn-bingo" onclick="gritarPremio('BINGO')">¡BINGO!</button>
+            <button class="btn-sauce btn-limpiar" onclick="limpiarCartones()">🧹 LIMPIAR CARTÓN</button>
         </div>
     </div>
 
     <script>
         const url = new URLSearchParams(window.location.search);
         let sacados = []; let timer = null; let audioIniciado = false; let msVelocidad = 4000; let juegoEnMarcha = false; let idioma = "es-ES"; let isMuted = false;
+        let syncTimer = null; let cartones = []; // Array para almacenar los cartones generados
+        const STORAGE_KEY = 'bingo_sauce_state';
+        const MAX_HISTORIAL = 10;
+        const SYNC_TIMEOUT_MS = 10000; // 10 segundos
+        const SYNC_INTERVAL_MS = 2000; // 2 segundos
+        const MAX_CARD_NUMBER = 9999;
         const textos = {
-            "es-ES": { bienv: "Bienvenidos al Bingo Sauce.", inicio: "INICIAR", pausa: "PAUSA", restantes: "BOLAS RESTANTES", premio: "Alguien ha cantado ", ya: "¡YA!" },
-            "en-US": { bienv: "Welcome to Bingo Sauce.", inicio: "START", pausa: "PAUSE", restantes: "BALLS LEFT", premio: "Someone called ", ya: "GO!" }
+            "es-ES": { bienv: "Bienvenidos al Bingo Sauce.", inicio: "INICIAR", pausa: "PAUSA", restantes: "BOLAS RESTANTES", premio: "Alguien ha cantado ", ya: "¡YA!", lineaValida: "¡LÍNEA VÁLIDA! ¡Felicidades!", bingoValido: "¡BINGO VÁLIDO! ¡¡GANADOR!!", lineaInvalida: "Línea incorrecta. Revisa tu cartón.", bingoInvalido: "Bingo incorrecto. Revisa tu cartón.", notificacionLinea: "Un jugador ha cantado LÍNEA válida", notificacionBingo: "Un jugador ha cantado BINGO válido" },
+            "en-US": { bienv: "Welcome to Bingo Sauce.", inicio: "START", pausa: "PAUSE", restantes: "BALLS LEFT", premio: "Someone called ", ya: "GO!", lineaValida: "VALID LINE! Congratulations!", bingoValido: "VALID BINGO! WINNER!!", lineaInvalida: "Incorrect line. Check your card.", bingoInvalido: "Incorrect bingo. Check your card.", notificacionLinea: "A player has called a valid LINE", notificacionBingo: "A player has called a valid BINGO" }
         };
+
+        // LocalStorage sync functions
+        function guardarEstado() {
+            const estado = {
+                sacados: sacados,
+                juegoEnMarcha: juegoEnMarcha,
+                ultimoNumero: sacados.length > 0 ? sacados[sacados.length - 1] : null,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
+        }
+
+        function cargarEstado() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                if (data) {
+                    const estado = JSON.parse(data);
+                    // Solo sincronizar si el estado es reciente (menos de 10 segundos)
+                    if (Date.now() - estado.timestamp < SYNC_TIMEOUT_MS) {
+                        return estado;
+                    }
+                }
+            } catch (e) {
+                console.error('Error cargando estado:', e);
+            }
+            return null;
+        }
+
+        function sincronizarJugador() {
+            const estado = cargarEstado();
+            if (estado) {
+                const ultimoSacado = sacados.length > 0 ? sacados[sacados.length - 1] : null;
+                const nuevoUltimo = estado.ultimoNumero;
+                
+                if (nuevoUltimo && nuevoUltimo !== ultimoSacado) {
+                    sacados = estado.sacados;
+                    actualizarHistorialJugador();
+                    const bolaJugador = document.getElementById('bola-jugador');
+                    if (bolaJugador) {
+                        bolaJugador.innerText = nuevoUltimo;
+                        bolaJugador.classList.add('pop');
+                        setTimeout(() => bolaJugador.classList.remove('pop'), 500);
+                        resaltarNumeroEnCartones(nuevoUltimo);
+                    }
+                }
+            }
+        }
+
+        function iniciarSincronizacion() {
+            if (!syncTimer) {
+                syncTimer = setInterval(sincronizarJugador, SYNC_INTERVAL_MS); // Polling cada 2 segundos
+            }
+        }
+
+        function detenerSincronizacion() {
+            if (syncTimer) {
+                clearInterval(syncTimer);
+                syncTimer = null;
+            }
+        }
+
+        // Web Audio API para efectos de sonido
+        let audioContext = null;
+        function iniciarAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function reproducirSonidoCelebracion() {
+            if (isMuted) return;
+            iniciarAudioContext();
+            
+            // Secuencia de notas alegres
+            const notas = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+            let tiempo = audioContext.currentTime;
+            
+            notas.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.3, tiempo);
+                gain.gain.exponentialRampToValueAtTime(0.01, tiempo + 0.2);
+                osc.start(tiempo);
+                osc.stop(tiempo + 0.2);
+                tiempo += 0.15;
+            });
+        }
+
+        function actualizarHistorial() {
+            const ultimos = sacados.slice(-MAX_HISTORIAL).reverse();
+            const listaCantante = document.getElementById('lista-historial-cantante');
+            if (listaCantante) {
+                listaCantante.innerHTML = ultimos.map(n => `<div class="historial-num">${n}</div>`).join('');
+            }
+        }
+
+        function actualizarHistorialJugador() {
+            const ultimos = sacados.slice(-MAX_HISTORIAL).reverse();
+            const listaJugador = document.getElementById('lista-historial-jugador');
+            if (listaJugador) {
+                listaJugador.innerHTML = ultimos.map(n => `<div class="historial-num">${n}</div>`).join('');
+            }
+        }
+
+        function resaltarNumeroEnCartones(numero) {
+            // Remover resaltado anterior
+            document.querySelectorAll('.c-celda.ultimo-numero').forEach(c => c.classList.remove('ultimo-numero'));
+            
+            // Resaltar el nuevo número
+            document.querySelectorAll('.c-celda').forEach(celda => {
+                if (parseInt(celda.innerText) === numero && !celda.classList.contains('vacia')) {
+                    celda.classList.add('ultimo-numero');
+                    setTimeout(() => celda.classList.remove('ultimo-numero'), 2000);
+                }
+            });
+        }
+
+        function mostrarMensajeValidacion(mensaje, tipo) {
+            const div = document.createElement('div');
+            div.className = `mensaje-validacion ${tipo}`;
+            div.innerText = mensaje;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function validarLinea() {
+            // Verificar si hay al menos una línea completa marcada
+            const todasLasCeldas = document.querySelectorAll('.c-celda');
+            const celdasMarcadas = new Set();
+            todasLasCeldas.forEach(celda => {
+                if (celda.classList.contains('marcado') && !celda.classList.contains('vacia')) {
+                    celdasMarcadas.add(parseInt(celda.innerText));
+                }
+            });
+            
+            for (let carton of cartones) {
+                for (let fila of carton) {
+                    const numerosFila = fila.filter(n => n !== 0);
+                    const todosEnSacados = numerosFila.every(n => sacados.includes(n));
+                    const todosMarcados = numerosFila.every(n => celdasMarcadas.has(n));
+                    
+                    if (todosEnSacados && todosMarcados) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function validarBingo() {
+            // Verificar si hay al menos un cartón completamente marcado
+            const todasLasCeldas = document.querySelectorAll('.c-celda');
+            const celdasMarcadas = new Set();
+            todasLasCeldas.forEach(celda => {
+                if (celda.classList.contains('marcado') && !celda.classList.contains('vacia')) {
+                    celdasMarcadas.add(parseInt(celda.innerText));
+                }
+            });
+            
+            for (let carton of cartones) {
+                const todosLosNumeros = carton.flat().filter(n => n !== 0);
+                const todosEnSacados = todosLosNumeros.every(n => sacados.includes(n));
+                const todosMarcados = todosLosNumeros.every(n => celdasMarcadas.has(n));
+                
+                if (todosEnSacados && todosMarcados) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function notificarCantante(tipo, valido) {
+            if (valido) {
+                const notificacion = {
+                    tipo: tipo,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('bingo_sauce_notificacion', JSON.stringify(notificacion));
+            }
+        }
+
+        function verificarNotificaciones() {
+            try {
+                const data = localStorage.getItem('bingo_sauce_notificacion');
+                if (data) {
+                    const notif = JSON.parse(data);
+                    // Solo mostrar si es reciente (menos de 5 segundos)
+                    if (Date.now() - notif.timestamp < 5000) {
+                        const mensaje = notif.tipo === 'LÍNEA' ? textos[idioma].notificacionLinea : textos[idioma].notificacionBingo;
+                        mostrarMensajeValidacion(mensaje, 'exito');
+                        hablar(mensaje);
+                        localStorage.removeItem('bingo_sauce_notificacion');
+                    }
+                }
+            } catch (e) {
+                console.error('Error verificando notificaciones:', e);
+            }
+        }
+
+        function limpiarCartones() {
+            if (confirm('¿Estás seguro de que quieres limpiar todas las marcas del cartón?')) {
+                document.querySelectorAll('.c-celda.marcado').forEach(celda => {
+                    celda.classList.remove('marcado');
+                });
+            }
+        }
+
+        function generarNumeroCarton(columna, numerosExistentes) {
+            // Genera un número válido para la columna del cartón (0-9 para columna 0, 10-19 para columna 1, etc.)
+            let num;
+            const minNum = columna * 10;
+            const maxNum = minNum + 9;
+            const existentesSet = new Set(numerosExistentes);
+            
+            do {
+                num = Math.floor(Math.random() * 10) + minNum;
+                // Casos especiales: columna 0 no puede ser 0, últimas columnas no pueden pasar de 90
+                if (num === 0) num = 1;
+                if (num > 90) num = 90;
+            } while (existentesSet.has(num));
+            
+            return num;
+        }
 
         function hablar(texto) { if (isMuted) return; window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(texto); msg.lang = idioma; window.speechSynthesis.speak(msg); }
         function toggleMute() {
@@ -130,8 +409,16 @@
         function activarAudio() { if (!audioIniciado) { if(!isMuted) hablar(textos[idioma].bienv); audioIniciado = true; } }
         function crearTablero() { const t = document.getElementById('tablero'); t.innerHTML = ''; for(let i=1; i<=90; i++) { let d = document.createElement('div'); d.className = 'n-off'; d.id = 'n-'+i; d.innerText = i; t.appendChild(d); } }
 
-        if (url.has('play')) { document.getElementById('panel-cantante').style.display = 'none'; document.getElementById('pantalla-jugador').style.display = 'block'; }
-        else { crearTablero(); new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?play=true", width: 140, height: 140 }); }
+        if (url.has('play')) { 
+            document.getElementById('panel-cantante').style.display = 'none'; 
+            document.getElementById('pantalla-jugador').style.display = 'block';
+        }
+        else { 
+            crearTablero(); 
+            new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?play=true", width: 140, height: 140 });
+            // Verificar notificaciones de jugadores periodicamente
+            setInterval(verificarNotificaciones, 2000);
+        }
 
         function prepararSorteo() {
             if (juegoEnMarcha) return;
@@ -152,27 +439,52 @@
             if (sacados.length >= 90) return;
             let n; do { n = Math.floor(Math.random() * 90) + 1; } while (sacados.includes(n));
             sacados.push(n);
-            document.getElementById('bola').innerText = n;
+            const bolaElement = document.getElementById('bola');
+            bolaElement.innerText = n;
+            bolaElement.classList.add('pop');
+            setTimeout(() => bolaElement.classList.remove('pop'), 500);
             document.getElementById('restantes').innerText = 90 - sacados.length;
             document.getElementById('n-'+n).className = 'n-off n-on';
             hablar(n);
+            guardarEstado();
+            actualizarHistorial();
         }
 
-        function autoPlay() { juegoEnMarcha = true; document.getElementById('btn-play').disabled = true; sortear(); timer = setInterval(sortear, msVelocidad); }
-        function pausar() { clearInterval(timer); timer = null; juegoEnMarcha = false; document.getElementById('btn-play').disabled = false; window.speechSynthesis.cancel(); }
-        function reiniciarTodo() { if(confirm("RESTART?")) { pausar(); sacados = []; document.getElementById('bola').innerText = '--'; document.getElementById('restantes').innerText = '90'; crearTablero(); } }
+        function autoPlay() { juegoEnMarcha = true; document.getElementById('btn-play').disabled = true; sortear(); timer = setInterval(sortear, msVelocidad); guardarEstado(); }
+        function pausar() { clearInterval(timer); timer = null; juegoEnMarcha = false; document.getElementById('btn-play').disabled = false; window.speechSynthesis.cancel(); guardarEstado(); }
+        function reiniciarTodo() { if(confirm("RESTART?")) { pausar(); sacados = []; document.getElementById('bola').innerText = '--'; document.getElementById('restantes').innerText = '90'; crearTablero(); guardarEstado(); actualizarHistorial(); localStorage.removeItem('bingo_sauce_notificacion'); } }
         function cambiarVelocidad() { msVelocidad = parseInt(document.getElementById('select-velocidad').value); if(juegoEnMarcha) { clearInterval(timer); timer = setInterval(sortear, msVelocidad); } }
 
         function gritarPremio(tipo) {
-            const alerta = document.getElementById('alerta-bingo');
-            const texto = document.getElementById('alerta-texto');
-            document.getElementById('countdown-display').style.display = 'none';
-            texto.innerText = `¡¡${tipo} SAUCE!!`;
-            texto.style.display = 'block';
-            document.getElementById('btn-cerrar-alerta').style.display = 'block';
-            alerta.style.display = 'flex';
-            hablar(textos[idioma].premio + tipo);
-            pausar();
+            let esValido = false;
+            let mensaje = '';
+            
+            if (tipo === 'LÍNEA') {
+                esValido = validarLinea();
+                mensaje = esValido ? textos[idioma].lineaValida : textos[idioma].lineaInvalida;
+            } else if (tipo === 'BINGO') {
+                esValido = validarBingo();
+                mensaje = esValido ? textos[idioma].bingoValido : textos[idioma].bingoInvalido;
+            }
+            
+            mostrarMensajeValidacion(mensaje, esValido ? 'exito' : 'error');
+            
+            if (esValido) {
+                reproducirSonidoCelebracion();
+                notificarCantante(tipo, true);
+                
+                // Mostrar alerta grande
+                const alerta = document.getElementById('alerta-bingo');
+                const texto = document.getElementById('alerta-texto');
+                document.getElementById('countdown-display').style.display = 'none';
+                texto.innerText = `¡¡${tipo} SAUCE!!`;
+                texto.style.display = 'block';
+                document.getElementById('btn-cerrar-alerta').style.display = 'block';
+                alerta.style.display = 'flex';
+                hablar(textos[idioma].premio + tipo);
+            } else {
+                hablar(mensaje);
+            }
         }
 
         function cerrarAlerta() { document.getElementById('alerta-bingo').style.display = 'none'; }
@@ -180,25 +492,36 @@
         function jugar(cant) {
             document.getElementById('selector').style.display = 'none';
             document.getElementById('zona-cartones').style.display = 'block';
+            cartones = []; // Reset cartones array
+            
+            // Iniciar sincronización
+            iniciarSincronizacion();
+            
             for(let i=0; i<cant; i++) {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'carton-real';
-                wrapper.innerHTML = `<div style="color:#333; font-size:0.7rem; display:flex; justify-content:space-between"><span>SAUCE PREMIUM</span><span>#${Math.floor(Math.random()*999)}</span></div>`;
+                const numCarton = Math.floor(Math.random() * MAX_CARD_NUMBER);
+                wrapper.innerHTML = `<div style="color:#333; font-size:0.9rem; font-weight:bold; display:flex; justify-content:space-between; padding: 5px;"><span>SAUCE PREMIUM</span><span>#${numCarton}</span></div>`;
                 const grid = document.createElement('div'); grid.className = 'c-grid';
                 let matriz = Array(3).fill().map(() => Array(9).fill(0));
                 for(let f=0; f<3; f++) {
                     let cs = []; while(cs.length < 5) { let r = Math.floor(Math.random()*9); if(!cs.includes(r)) cs.push(r); }
                     cs.forEach(c => {
-                        let num; do { num = Math.floor(Math.random()*10) + (c*10); if(num===0) num=1; if(num>90) num=90; } while(matriz.flat().includes(num));
-                        matriz[f][c] = num;
+                        matriz[f][c] = generarNumeroCarton(c, matriz.flat());
                     });
                 }
+                cartones.push(matriz); // Guardar matriz del cartón
+                
                 for(let f=0; f<3; f++) {
                     for(let c=0; c<9; c++) {
                         let celda = document.createElement('div');
                         celda.className = 'c-celda' + (matriz[f][c] === 0 ? ' vacia' : '');
                         celda.innerText = matriz[f][c] || '';
-                        if(matriz[f][c] !== 0) celda.onclick = function() { this.classList.toggle('marcado'); };
+                        if(matriz[f][c] !== 0) {
+                            celda.onclick = function() { 
+                                this.classList.toggle('marcado');
+                            };
+                        }
                         grid.appendChild(celda);
                     }
                 }
@@ -209,4 +532,3 @@
     </script>
 </body>
 </html>
-
